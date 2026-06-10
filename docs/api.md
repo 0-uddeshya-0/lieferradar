@@ -2,7 +2,7 @@
 
 Base URL: `http://localhost:3001` (development)
 
-Authentication: httpOnly cookies (`accessToken`, `refreshToken`). Send requests with `credentials: include`.
+Authentication: httpOnly cookies (`accessToken`, `refreshToken`) for the web app — send requests with `credentials: include`. For integrations, use an API key instead: `Authorization: Bearer lr_...` works on every protected route. See [integrations.md](integrations.md).
 
 ## Auth
 
@@ -91,6 +91,19 @@ All routes require authentication. Scoped to caller's `orgId`.
 | Method | Path | Description |
 |--------|------|-------------|
 | DELETE | `/organizations/:id` | Delete org and all data (DSGVO erasure) |
+
+## Settings (integrations)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/settings/api-keys` | Create API key (plaintext returned once) |
+| GET | `/settings/api-keys` | List keys (name, createdAt, lastUsedAt) |
+| DELETE | `/settings/api-keys/:id` | Revoke key |
+| PUT | `/settings/webhook` | Set HTTPS webhook URL (returns signing secret once) |
+| GET | `/settings/webhook` | Current webhook URL |
+| DELETE | `/settings/webhook` | Remove webhook |
+
+Webhook events and signature verification: see [integrations.md](integrations.md).
 
 ## Error format
 

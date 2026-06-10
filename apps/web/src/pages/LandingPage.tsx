@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom';
+import { motion, MotionConfig } from 'framer-motion';
 import {
   ArrowRight,
   Bell,
   BarChart3,
   CalendarClock,
   Mail,
+  Plug,
   ShieldCheck,
   TrafficCone,
   Upload,
@@ -92,6 +94,7 @@ export function LandingPage() {
   const { t } = useI18n();
 
   return (
+    <MotionConfig reducedMotion="user">
     <div className="min-h-screen bg-white">
       <header className="sticky top-0 z-20 bg-white/80 backdrop-blur border-b">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -116,7 +119,12 @@ export function LandingPage() {
       <main>
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-brand-50 via-white to-white" />
-          <div className="relative max-w-6xl mx-auto px-4 pt-20 pb-14 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            className="relative max-w-6xl mx-auto px-4 pt-20 pb-14 text-center"
+          >
             <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-white px-3 py-1 text-xs font-medium text-brand-700">
               <ShieldCheck className="w-3.5 h-3.5" />
               {t('landing.hero.badge')}
@@ -144,10 +152,15 @@ export function LandingPage() {
                 </Button>
               </Link>
             </div>
-          </div>
-          <div className="relative max-w-6xl mx-auto px-4 pb-16">
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 32 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.15, ease: 'easeOut' }}
+            className="relative max-w-6xl mx-auto px-4 pb-16"
+          >
             <DashboardPreview />
-          </div>
+          </motion.div>
         </section>
 
         <section className="max-w-6xl mx-auto px-4 py-16">
@@ -156,9 +169,13 @@ export function LandingPage() {
             <p className="mt-2 text-gray-600">{t('landing.features.sub')}</p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {FEATURES.map((feature) => (
-              <div
+            {FEATURES.map((feature, i) => (
+              <motion.div
                 key={feature.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.4, delay: (i % 3) * 0.08, ease: 'easeOut' }}
                 className="group bg-white border border-gray-200 rounded-xl p-6 transition-shadow hover:shadow-md"
               >
                 <span className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-brand-50 text-brand-600 mb-4 group-hover:bg-brand-600 group-hover:text-white transition-colors">
@@ -166,9 +183,36 @@ export function LandingPage() {
                 </span>
                 <h3 className="font-semibold text-gray-900">{t(feature.title)}</h3>
                 <p className="text-sm text-gray-600 mt-2 leading-relaxed">{t(feature.desc)}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
+        </section>
+
+        <section className="max-w-6xl mx-auto px-4 pb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="bg-gray-900 text-white rounded-2xl p-8 md:p-10"
+          >
+            <div className="flex items-start gap-4 flex-wrap md:flex-nowrap">
+              <span className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-white/10 shrink-0">
+                <Plug className="w-5 h-5" />
+              </span>
+              <div>
+                <h2 className="text-xl md:text-2xl font-bold">{t('landing.integrations.title')}</h2>
+                <p className="mt-2 text-gray-300 leading-relaxed max-w-3xl">{t('landing.integrations.desc')}</p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {['REST API', 'Webhooks', 'n8n · Make · Zapier', t('landing.integrations.mcp'), 'CSV', t('landing.integrations.erp')].map((chip) => (
+                    <span key={chip} className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium">
+                      {chip}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </section>
 
         <section className="bg-gray-50 border-y">
@@ -237,5 +281,6 @@ export function LandingPage() {
         </div>
       </footer>
     </div>
+    </MotionConfig>
   );
 }

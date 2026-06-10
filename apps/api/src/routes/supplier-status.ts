@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { SupplierStatusUpdateSchema } from '@lieferradar/shared';
 import { prisma } from '../db';
 import { buildStatusUpdateAlert, sendEmail } from '../services/emailService';
+import { dispatchWebhook, orderWebhookPayload } from '../services/webhookService';
 
 export async function supplierStatusRoutes(app: FastifyInstance) {
   app.get('/s/:token', {
@@ -72,6 +73,8 @@ export async function supplierStatusRoutes(app: FastifyInstance) {
 
     const email = buildStatusUpdateAlert(updated, body.status, body.note);
     await sendEmail(email);
+
+    void dispatchWebhook(order.orgId, 'order.supplier_responded', orderWebhookPayload(updated));
 
     request.log.info({ orderId: order.id, orgId: order.orgId }, 'Supplier status updated');
 

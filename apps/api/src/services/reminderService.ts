@@ -7,6 +7,7 @@ import {
   buildUnresponsiveAlert,
   sendEmail,
 } from './emailService';
+import { dispatchWebhook, orderWebhookPayload } from './webhookService';
 
 const REMINDER_THRESHOLD_DAYS = 2;
 const UNRESPONSIVE_ALERT_WINDOW_DAYS = 7;
@@ -69,6 +70,8 @@ export async function processReminders(): Promise<number> {
     if (newCount >= 2 && !order.lastSupplierUpdate) {
       await sendUnresponsiveAlertIfNeeded(order.orgId, order.supplierId);
     }
+
+    void dispatchWebhook(order.orgId, 'order.reminder_sent', orderWebhookPayload(order));
 
     processed++;
   }
@@ -140,4 +143,6 @@ export async function sendManualReminder(orgId: string, orderId: string) {
       emailTo: order.supplier.contactEmail,
     },
   });
+
+  void dispatchWebhook(order.orgId, 'order.reminder_sent', orderWebhookPayload(order));
 }

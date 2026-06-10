@@ -9,3 +9,5 @@ coverage/
 .claude/
 apps/api/tests/**/*.js
 packages/shared/dist/
+playwright-report/
+test-results/

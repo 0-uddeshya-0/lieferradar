@@ -1,0 +1,22 @@
+{
+  "name": "@lieferradar/mcp",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "MCP server exposing LieferRadar order tracking to AI agents",
+  "bin": {
+    "lieferradar-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.0",
+    "typescript": "^5.6.2"
+  }
+}

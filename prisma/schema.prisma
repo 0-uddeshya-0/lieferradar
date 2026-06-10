@@ -25,13 +25,28 @@ enum ReminderType {
 }
 
 model Organization {
-  id        String     @id @default(cuid())
-  name      String
-  email     String     @unique
-  createdAt DateTime   @default(now())
-  users     User[]
-  suppliers Supplier[]
-  orders    Order[]
+  id            String     @id @default(cuid())
+  name          String
+  email         String     @unique
+  webhookUrl    String?
+  webhookSecret String?
+  createdAt     DateTime   @default(now())
+  users         User[]
+  suppliers     Supplier[]
+  orders        Order[]
+  apiKeys       ApiKey[]
+}
+
+model ApiKey {
+  id           String       @id @default(cuid())
+  orgId        String
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  name         String
+  keyHash      String       @unique
+  createdAt    DateTime     @default(now())
+  lastUsedAt   DateTime?
+
+  @@index([orgId])
 }
 
 model User {

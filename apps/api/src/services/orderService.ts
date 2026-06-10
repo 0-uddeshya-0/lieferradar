@@ -3,6 +3,7 @@ import type { OrderStatus, Prisma } from '@prisma/client';
 import type { CreateOrderInput } from '@lieferradar/shared';
 import { computeDelayRisk } from '../utils/delayRisk';
 import { buildInitialNotification, sendEmail } from './emailService';
+import { dispatchWebhook, orderWebhookPayload } from './webhookService';
 import { ReminderType } from '@prisma/client';
 
 export async function createOrder(orgId: string, input: CreateOrderInput) {
@@ -126,6 +127,8 @@ export async function updateOrderStatus(
     },
     include: { supplier: true },
   });
+
+  void dispatchWebhook(orgId, 'order.status_changed', orderWebhookPayload(updated));
 
   return enrichOrder(updated);
 }

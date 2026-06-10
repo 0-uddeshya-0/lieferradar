@@ -1,4 +1,5 @@
 import Fastify from 'fastify';
+import { ZodError } from 'zod';
 import multipart from '@fastify/multipart';
 import { registerCors } from './plugins/cors';
 import { registerAuth } from './plugins/auth';
@@ -9,6 +10,7 @@ import { orderRoutes } from './routes/orders';
 import { supplierStatusRoutes } from './routes/supplier-status';
 import { dashboardRoutes } from './routes/dashboard';
 import { organizationRoutes } from './routes/organizations';
+import { settingsRoutes } from './routes/settings';
 import { startReminderJob } from './jobs/reminderJob';
 import { startDigestJob } from './jobs/digestJob';
 import { config } from './config';
@@ -19,6 +21,19 @@ export async function buildApp() {
       level: config.NODE_ENV === 'test' ? 'silent' : 'info',
       redact: ['req.headers.authorization', 'req.headers.cookie'],
     },
+  });
+
+  app.setErrorHandler((error, request, reply) => {
+    if (error instanceof ZodError) {
+      return reply.status(400).send({
+        error: 'Validierungsfehler',
+        details: error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+      });
+    }
+    request.log.error(error);
+    return reply.status(error.statusCode ?? 500).send({
+      error: error.statusCode ? error.message : 'Interner Fehler',
+    });
   });
 
   await registerCors(app);
@@ -32,6 +47,7 @@ export async function buildApp() {
   await app.register(supplierStatusRoutes);
   await app.register(dashboardRoutes);
   await app.register(organizationRoutes);
+  await app.register(settingsRoutes);
 
   if (config.NODE_ENV !== 'test') {
     startReminderJob(app.log);

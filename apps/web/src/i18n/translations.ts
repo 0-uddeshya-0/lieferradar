@@ -44,6 +44,11 @@ const de = {
   'landing.how.step3.desc': 'Dashboard mit Risiko-Ampel und Scorecard zeigt, wo Sie eingreifen müssen.',
   'landing.roi.value': 'Lieferanten-Anfragen automatisiert in 30 Tagen',
   'landing.roi.desc': 'Der ROI-Zähler im Dashboard zeigt, wie viel Nachfassarbeit das System übernimmt — jede automatische Anfrage ist ein Anruf weniger.',
+  'landing.integrations.title': 'Passt in Ihre Werkzeuge und Workflows',
+  'landing.integrations.desc':
+    'CSV-Import heute, REST-API und signierte Webhooks für n8n, Make oder Zapier — und ein MCP-Server, damit KI-Assistenten Bestellungen direkt abfragen und nachfassen können. ERP-Konnektoren (SAP Business One, proAlpha, abas) sind in Arbeit.',
+  'landing.integrations.mcp': 'MCP für KI-Agenten',
+  'landing.integrations.erp': 'ERP-Konnektoren (bald)',
   'landing.pilot.title': 'Pilotkunden gesucht',
   'landing.pilot.desc':
     'Wir suchen Einkaufsteams aus Maschinenbau und Metallverarbeitung (10–250 Mitarbeiter), die LieferRadar acht Wochen kostenlos testen — Einrichtung inklusive. Sie brauchen nur einen CSV-Export Ihrer offenen Bestellungen aus ERP oder Excel.',
@@ -233,6 +238,11 @@ const en: Record<TranslationKey, string> = {
   'landing.how.step3.desc': 'A dashboard with risk indicators and scorecards shows you where to step in.',
   'landing.roi.value': 'supplier requests automated in 30 days',
   'landing.roi.desc': 'The ROI counter on the dashboard shows how much follow-up work the system handles — every automated request is one less phone call.',
+  'landing.integrations.title': 'Fits your tools and workflows',
+  'landing.integrations.desc':
+    'CSV import today, a REST API and signed webhooks for n8n, Make, or Zapier — plus an MCP server so AI assistants can query orders and chase suppliers directly. ERP connectors (SAP Business One, proAlpha, abas) are in the works.',
+  'landing.integrations.mcp': 'MCP for AI agents',
+  'landing.integrations.erp': 'ERP connectors (soon)',
   'landing.pilot.title': 'Looking for pilot customers',
   'landing.pilot.desc':
     'We are looking for purchasing teams in machine building and metal processing (10–250 employees) to test LieferRadar free for eight weeks — setup included. All you need is a CSV export of your open orders from your ERP or Excel.',

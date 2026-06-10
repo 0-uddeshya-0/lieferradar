@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "concurrently \"pnpm --filter @lieferradar/api dev\" \"pnpm --filter @lieferradar/web dev\"",
-    "build": "pnpm --filter @lieferradar/shared build && pnpm --filter @lieferradar/api build && pnpm --filter @lieferradar/web build",
+    "build": "pnpm --filter @lieferradar/shared build && pnpm --filter @lieferradar/api build && pnpm --filter @lieferradar/web build && pnpm --filter @lieferradar/mcp build",
     "test": "pnpm --filter @lieferradar/api test && pnpm --filter @lieferradar/web test && pnpm --filter @lieferradar/shared test",
     "prisma": "prisma",
     "db:migrate": "prisma migrate dev",

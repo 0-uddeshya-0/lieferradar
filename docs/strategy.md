@@ -45,11 +45,21 @@ adjacent, not this wedge.
 |---|---|---|
 | Status quo (Excel + Outlook + phone) | Free, familiar | We remove the chasing, not just record it; ROI counter makes saved work visible |
 | ERP dunning module | Already paid for | One-way mail, no structured response, no scorecard, often unused because it needs ERP customizing |
+| SAP Business Network / Ariba | SAP brand, deep S/4 integration | Charges *suppliers* transaction fees past trivial volume — widely resented by small vendors; our suppliers are always free and never log in. Most of our ICP doesn't run SAP at all |
 | Tacto, Onventis, SupplyOn | Breadth, compliance features | Priced and scoped for bigger companies; we are live in a day at a fraction of the cost |
 | SourceDay | Mature product | US-centric, English-first, ERP-integration-led sales; no DACH presence or DSGVO data-residency story |
 
+Frequently confused non-competitors: digital agencies and SAP consultancies
+(e.g. Medienwerft, part of FIS-Gruppe) build commerce platforms and ERP
+projects for clients — they are a potential *referral channel*, not a rival
+product.
+
 The real competitor is the status quo. The product must be adoptable in one
-afternoon from a CSV export — that constraint drives everything.
+afternoon from a CSV export — that constraint drives everything. The "SAP
+already does this" objection is answered in the product itself: suppliers free
+forever, no login, live in a day — and an API/webhook/MCP surface that drops
+into n8n/Make/Zapier automations and AI-agent workflows, which ERP dunning
+modules cannot do.
 
 ## Business model (hypothesis to validate)
 

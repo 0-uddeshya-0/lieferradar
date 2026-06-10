@@ -36,6 +36,8 @@ GitHub Pages serves the static frontend only. For the full product (database, em
 - **Weekly digest** — Monday 08:00 email summary to managers
 - **Bilingual UI** — German/English toggle, persisted per browser
 - **JWT auth** — HttpOnly cookie sessions with refresh token rotation
+- **API keys & webhooks** — Bearer-token API access plus HMAC-signed webhooks for n8n, Make, Zapier, or custom automation ([docs](docs/integrations.md))
+- **MCP server** — AI agents (e.g. Claude) can query orders, scorecards, and send reminders via `packages/mcp`
 - **DSGVO-ready** — Organization deletion endpoint and AVV template included
 
 ## Roadmap
