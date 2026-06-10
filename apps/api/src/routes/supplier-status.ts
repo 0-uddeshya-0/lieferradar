@@ -5,7 +5,7 @@ import { buildStatusUpdateAlert, sendEmail } from '../services/emailService';
 
 export async function supplierStatusRoutes(app: FastifyInstance) {
   app.get('/s/:token', {
-    config: { rateLimit: { max: 10, timeWindow: '1 hour', keyGenerator: (req) => (req.params as { token: string }).token } },
+    config: { rateLimit: { max: 30, timeWindow: '1 hour', keyGenerator: (req) => (req.params as { token: string }).token } },
   }, async (request, reply) => {
     const { token } = request.params as { token: string };
 

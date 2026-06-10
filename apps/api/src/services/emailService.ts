@@ -36,6 +36,15 @@ const transporter = nodemailer.createTransport({
   auth: config.SMTP_USER ? { user: config.SMTP_USER, pass: config.SMTP_PASS } : undefined,
 });
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function baseLayout(content: string, footerNote?: string): string {
   return `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;color:#333;max-width:600px;margin:0 auto;padding:20px;">
 ${content}
@@ -68,22 +77,22 @@ export function buildInitialNotification(
   const statusUrl = `${config.WEB_URL}/s/${order.magicToken}`;
   const dueDate = order.dueDate.toLocaleDateString('de-DE', { timeZone: 'Europe/Berlin' });
   const greeting = order.supplier.contactName
-    ? `Guten Tag ${order.supplier.contactName},`
+    ? `Guten Tag ${escapeHtml(order.supplier.contactName)},`
     : 'Guten Tag,';
 
   const html = baseLayout(`
 <h2>Bestellbestätigung anfragen</h2>
 <p>${greeting}</p>
-<p>${order.organization.name} bittet Sie um eine Statusaktualisierung für folgende Bestellung:</p>
+<p>${escapeHtml(order.organization.name)} bittet Sie um eine Statusaktualisierung für folgende Bestellung:</p>
 <table style="width:100%;border-collapse:collapse;margin:15px 0;">
-<tr><td style="padding:8px;border-bottom:1px solid #eee;"><strong>Bestellnr.</strong></td><td style="padding:8px;border-bottom:1px solid #eee;">${order.orderNumber}</td></tr>
-<tr><td style="padding:8px;border-bottom:1px solid #eee;"><strong>Artikel</strong></td><td style="padding:8px;border-bottom:1px solid #eee;">${order.partDescription}</td></tr>
-${order.quantity ? `<tr><td style="padding:8px;border-bottom:1px solid #eee;"><strong>Menge</strong></td><td style="padding:8px;border-bottom:1px solid #eee;">${order.quantity} ${order.unit ?? ''}</td></tr>` : ''}
+<tr><td style="padding:8px;border-bottom:1px solid #eee;"><strong>Bestellnr.</strong></td><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(order.orderNumber)}</td></tr>
+<tr><td style="padding:8px;border-bottom:1px solid #eee;"><strong>Artikel</strong></td><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(order.partDescription)}</td></tr>
+${order.quantity ? `<tr><td style="padding:8px;border-bottom:1px solid #eee;"><strong>Menge</strong></td><td style="padding:8px;border-bottom:1px solid #eee;">${order.quantity} ${escapeHtml(order.unit ?? '')}</td></tr>` : ''}
 <tr><td style="padding:8px;"><strong>Liefertermin</strong></td><td style="padding:8px;">${dueDate}</td></tr>
 </table>
 ${ctaButton(statusUrl, 'Status aktualisieren')}
-<p style="font-size:13px;color:#666;">Alternativ können Sie auf diese E-Mail antworten. // TODO(phase2): Inbound-E-Mail-Parsing</p>
-`, `Kontakt: ${order.organization.email}`);
+<p style="font-size:13px;color:#666;">Bei Rückfragen antworten Sie einfach auf diese E-Mail.</p>
+`, `Kontakt: ${escapeHtml(order.organization.email)}`);
 
   return {
     to: order.supplier.contactEmail,
@@ -102,9 +111,9 @@ export function buildStatusUpdateAlert(
 
   const html = baseLayout(`
 <h2>Status aktualisiert</h2>
-<p>Der Lieferant <strong>${order.supplier.name}</strong> hat den Status für Bestellung <strong>${order.orderNumber}</strong> aktualisiert.</p>
+<p>Der Lieferant <strong>${escapeHtml(order.supplier.name)}</strong> hat den Status für Bestellung <strong>${escapeHtml(order.orderNumber)}</strong> aktualisiert.</p>
 <p><strong>Neuer Status:</strong> ${statusLabel}</p>
-${note ? `<p><strong>Anmerkung:</strong> ${note}</p>` : ''}
+${note ? `<p><strong>Anmerkung:</strong> ${escapeHtml(note)}</p>` : ''}
 ${ctaButton(orderUrl, 'Bestellung ansehen')}
 `);
 
@@ -125,7 +134,7 @@ export function buildReminder1(
   const html = baseLayout(`
 <h2>Erinnerung: Status ausstehend</h2>
 <p>Guten Tag,</p>
-<p>wir möchten Sie freundlich daran erinnern, den Status für Bestellung <strong>${order.orderNumber}</strong> zu aktualisieren.</p>
+<p>wir möchten Sie freundlich daran erinnern, den Status für Bestellung <strong>${escapeHtml(order.orderNumber)}</strong> zu aktualisieren.</p>
 <p>Geplanter Liefertermin: <strong>${dueDate}</strong></p>
 ${ctaButton(statusUrl, 'Status aktualisieren')}
 `, 'Sie erhalten diese Erinnerung, weil noch kein Status gemeldet wurde. Bei Fragen wenden Sie sich bitte an den Besteller.');
@@ -146,7 +155,7 @@ export function buildReminder2(
   const html = baseLayout(`
 <h2>Dringende Erinnerung</h2>
 <p>Guten Tag,</p>
-<p>der Status für Bestellung <strong>${order.orderNumber}</strong> steht weiterhin aus. Bitte aktualisieren Sie den Status umgehend.</p>
+<p>der Status für Bestellung <strong>${escapeHtml(order.orderNumber)}</strong> steht weiterhin aus. Bitte aktualisieren Sie den Status umgehend.</p>
 <p>Liefertermin: <strong>${dueDate}</strong></p>
 ${ctaButton(statusUrl, 'Jetzt Status aktualisieren')}
 `, 'Diese E-Mail wurde automatisch versendet, da kein Status gemeldet wurde.');
@@ -166,7 +175,7 @@ export function buildUnresponsiveAlert(
 ): EmailTemplate {
   const html = baseLayout(`
 <h2>Lieferant antwortet nicht</h2>
-<p>Der Lieferant <strong>${supplierName}</strong> hat auf <strong>${orderCount}</strong> Bestellung(en) nicht reagiert, trotz mehrfacher Erinnerungen.</p>
+<p>Der Lieferant <strong>${escapeHtml(supplierName)}</strong> hat auf <strong>${orderCount}</strong> Bestellung(en) nicht reagiert, trotz mehrfacher Erinnerungen.</p>
 ${ctaButton(`${config.WEB_URL}/suppliers`, 'Lieferantenübersicht öffnen')}
 `);
 
@@ -184,16 +193,16 @@ export function buildWeeklyDigest(
   const criticalRows = digestData.criticalOrders
     .map(
       (o) =>
-        `<tr><td style="padding:6px;border-bottom:1px solid #eee;">${o.orderNumber}</td><td style="padding:6px;border-bottom:1px solid #eee;">${o.supplierName}</td><td style="padding:6px;border-bottom:1px solid #eee;">${o.partDescription}</td><td style="padding:6px;border-bottom:1px solid #eee;">${o.dueDate}</td><td style="padding:6px;border-bottom:1px solid #eee;">${o.status}</td></tr>`
+        `<tr><td style="padding:6px;border-bottom:1px solid #eee;">${escapeHtml(o.orderNumber)}</td><td style="padding:6px;border-bottom:1px solid #eee;">${escapeHtml(o.supplierName)}</td><td style="padding:6px;border-bottom:1px solid #eee;">${escapeHtml(o.partDescription)}</td><td style="padding:6px;border-bottom:1px solid #eee;">${o.dueDate}</td><td style="padding:6px;border-bottom:1px solid #eee;">${escapeHtml(o.status)}</td></tr>`
     )
     .join('');
 
   const unresponsiveList = digestData.unresponsiveSuppliers
-    .map((s) => `<li>${s.name} (${s.count} Bestellungen)</li>`)
+    .map((s) => `<li>${escapeHtml(s.name)} (${s.count} Bestellungen)</li>`)
     .join('');
 
   const deliveredList = digestData.deliveredThisWeek
-    .map((o) => `<li>${o.orderNumber} – ${o.supplierName}: ${o.partDescription}</li>`)
+    .map((o) => `<li>${escapeHtml(o.orderNumber)} – ${escapeHtml(o.supplierName)}: ${escapeHtml(o.partDescription)}</li>`)
     .join('');
 
   const html = baseLayout(`

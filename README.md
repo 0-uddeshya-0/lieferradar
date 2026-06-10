@@ -13,10 +13,11 @@ LieferRadar is a supplier delay intelligence tool for German manufacturing SMEs.
 | Feature | GitHub Pages (demo) | Full deploy (local / server) |
 |---------|---------------------|------------------------------|
 | Landing page & product overview | Yes | Yes |
-| Dashboard with orders & filters | Mock data | Live data |
-| Supplier scorecard | Mock data | Live data |
+| German / English language toggle | Yes | Yes |
+| Dashboard with orders & filters | Sample data (in-memory) | Live data |
+| Supplier scorecard | Sample data (in-memory) | Live data |
 | Supplier magic-link page | Demo token (`/s/demo`) | Real magic links |
-| CSV import, create orders | UI only (no persistence) | Full functionality |
+| CSV import, create orders & suppliers | Works for the session (in-memory) | Persisted in PostgreSQL |
 | Login / registration | Skipped in demo | JWT with refresh tokens |
 | Email notifications | — | SMTP (Mailgun, Postmark, etc.) |
 | Cron reminders & weekly digest | — | node-cron jobs |
@@ -33,6 +34,7 @@ GitHub Pages serves the static frontend only. For the full product (database, em
 - **Supplier scorecard** — On-time rate, response time, and responsiveness labels per supplier
 - **ROI metrics** — Dashboard shows automated supplier requests in the last 30 days
 - **Weekly digest** — Monday 08:00 email summary to managers
+- **Bilingual UI** — German/English toggle, persisted per browser
 - **JWT auth** — HttpOnly cookie sessions with refresh token rotation
 - **DSGVO-ready** — Organization deletion endpoint and AVV template included
 

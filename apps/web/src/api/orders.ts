@@ -3,7 +3,7 @@ import { apiClient } from './client';
 import type { CreateOrderInput } from '@lieferradar/shared';
 import type { OrderFilters } from '../hooks/useFilters';
 import { isDemoMode } from '../demo/config';
-import { DEMO_ORDERS, DEMO_ORDER_DETAIL } from '../demo/mockData';
+import * as demoStore from '../demo/store';
 
 export const QUERY_KEYS = {
   orders: (filters?: OrderFilters) => ['orders', filters] as const,
@@ -13,36 +13,11 @@ export const QUERY_KEYS = {
   summary: () => ['dashboard', 'summary'] as const,
 };
 
-function filterDemoOrders(filters?: OrderFilters) {
-  let result = [...DEMO_ORDERS];
-  if (filters?.status) {
-    result = result.filter((o) => o.status === filters.status);
-  }
-  if (filters?.supplierId) {
-    result = result.filter((o) => o.supplier.id === filters.supplierId);
-  }
-  if (filters?.overdueOnly) {
-    const today = new Date();
-    result = result.filter(
-      (o) => new Date(o.dueDate) < today && o.status !== 'DELIVERED' && o.status !== 'CANCELLED'
-    );
-  }
-  if (filters?.search) {
-    const q = filters.search.toLowerCase();
-    result = result.filter(
-      (o) =>
-        o.orderNumber.toLowerCase().includes(q) ||
-        o.partDescription.toLowerCase().includes(q)
-    );
-  }
-  return result;
-}
-
 export function useOrders(filters?: OrderFilters) {
   return useQuery({
     queryKey: QUERY_KEYS.orders(filters),
     queryFn: async () => {
-      if (isDemoMode) return { orders: filterDemoOrders(filters) };
+      if (isDemoMode) return { orders: demoStore.listOrders(filters) };
       const { data } = await apiClient.get('/orders', { params: filters });
       return data;
     },
@@ -53,10 +28,7 @@ export function useOrder(id: string) {
   return useQuery({
     queryKey: QUERY_KEYS.order(id),
     queryFn: async () => {
-      if (isDemoMode) {
-        const order = DEMO_ORDERS.find((o) => o.id === id);
-        return order ? { ...DEMO_ORDER_DETAIL, ...order } : DEMO_ORDER_DETAIL;
-      }
+      if (isDemoMode) return demoStore.getOrder(id) ?? null;
       const { data } = await apiClient.get(`/orders/${id}`);
       return data;
     },
@@ -68,15 +40,13 @@ export function useCreateOrder() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (input: CreateOrderInput) => {
-      if (isDemoMode) return { id: 'demo-new' };
+      if (isDemoMode) return demoStore.createOrder(input);
       const { data } = await apiClient.post('/orders', input);
       return data;
     },
     onSuccess: () => {
-      if (!isDemoMode) {
-        queryClient.invalidateQueries({ queryKey: ['orders'] });
-        queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-      }
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -85,15 +55,16 @@ export function useRemindOrder() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      if (isDemoMode) return { success: true };
+      if (isDemoMode) {
+        demoStore.remindOrder(id);
+        return { success: true };
+      }
       const { data } = await apiClient.post(`/orders/${id}/remind`);
       return data;
     },
     onSuccess: () => {
-      if (!isDemoMode) {
-        queryClient.invalidateQueries({ queryKey: ['orders'] });
-        queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-      }
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -102,7 +73,10 @@ export function useImportOrders() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (file: File) => {
-      if (isDemoMode) return { imported: 5, errors: [] };
+      if (isDemoMode) {
+        const text = await file.text();
+        return demoStore.importCsv(text);
+      }
       const formData = new FormData();
       formData.append('file', file);
       const { data } = await apiClient.post('/orders/import', formData, {
@@ -111,11 +85,9 @@ export function useImportOrders() {
       return data as { imported: number; errors: Array<{ row: number; message: string }> };
     },
     onSuccess: () => {
-      if (!isDemoMode) {
-        queryClient.invalidateQueries({ queryKey: ['orders'] });
-        queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-        queryClient.invalidateQueries({ queryKey: ['suppliers'] });
-      }
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['suppliers'] });
     },
   });
 }

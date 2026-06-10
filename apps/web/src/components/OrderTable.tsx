@@ -3,7 +3,7 @@ import { Send } from 'lucide-react';
 import { OrderStatusBadge } from './OrderStatusBadge';
 import { DelayRiskIndicator } from './DelayRiskIndicator';
 import { Button } from './ui/Button';
-import { formatDate, formatRelative } from '../lib/dates';
+import { useI18n } from '../i18n';
 import type { OrderStatus, DelayRisk } from '../types';
 
 interface Order {
@@ -24,32 +24,34 @@ interface OrderTableProps {
 }
 
 export function OrderTable({ orders, onRemind, remindingId }: OrderTableProps) {
+  const { t, formatDate, formatRelative } = useI18n();
+
   if (orders.length === 0) {
     return (
       <div className="text-center py-12 text-gray-500">
-        Keine Bestellungen gefunden
+        {t('orders.empty')}
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto bg-white rounded-lg border">
+    <div className="overflow-x-auto bg-white rounded-xl border">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b bg-gray-50 text-left text-gray-600">
-            <th className="px-4 py-3 font-medium">Bestellnr.</th>
-            <th className="px-4 py-3 font-medium">Lieferant</th>
-            <th className="px-4 py-3 font-medium">Beschreibung</th>
-            <th className="px-4 py-3 font-medium">Fälligkeitsdatum</th>
-            <th className="px-4 py-3 font-medium">Status</th>
-            <th className="px-4 py-3 font-medium">Risiko</th>
-            <th className="px-4 py-3 font-medium">Letzte Aktivität</th>
-            <th className="px-4 py-3 font-medium">Aktionen</th>
+            <th className="px-4 py-3 font-medium">{t('orders.col.number')}</th>
+            <th className="px-4 py-3 font-medium">{t('orders.col.supplier')}</th>
+            <th className="px-4 py-3 font-medium">{t('orders.col.description')}</th>
+            <th className="px-4 py-3 font-medium">{t('orders.col.dueDate')}</th>
+            <th className="px-4 py-3 font-medium">{t('orders.col.status')}</th>
+            <th className="px-4 py-3 font-medium">{t('orders.col.risk')}</th>
+            <th className="px-4 py-3 font-medium">{t('orders.col.activity')}</th>
+            <th className="px-4 py-3 font-medium">{t('orders.col.actions')}</th>
           </tr>
         </thead>
         <tbody>
           {orders.map((order) => (
-            <tr key={order.id} className="border-b hover:bg-gray-50">
+            <tr key={order.id} className="border-b last:border-b-0 hover:bg-gray-50 transition-colors">
               <td className="px-4 py-3 font-mono text-xs">
                 <Link to={`/orders/${order.id}`} className="text-brand-600 hover:underline">
                   {order.orderNumber}
@@ -57,14 +59,14 @@ export function OrderTable({ orders, onRemind, remindingId }: OrderTableProps) {
               </td>
               <td className="px-4 py-3">{order.supplier.name}</td>
               <td className="px-4 py-3 max-w-xs truncate">{order.partDescription}</td>
-              <td className="px-4 py-3">{formatDate(order.dueDate)}</td>
+              <td className="px-4 py-3 whitespace-nowrap">{formatDate(order.dueDate)}</td>
               <td className="px-4 py-3">
                 <OrderStatusBadge status={order.status} />
               </td>
               <td className="px-4 py-3">
                 <DelayRiskIndicator risk={order.delayRisk} />
               </td>
-              <td className="px-4 py-3 text-gray-500">{formatRelative(order.updatedAt)}</td>
+              <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{formatRelative(order.updatedAt)}</td>
               <td className="px-4 py-3">
                 <div className="flex items-center gap-2">
                   {order.status !== 'DELIVERED' && order.status !== 'CANCELLED' && (
@@ -75,7 +77,7 @@ export function OrderTable({ orders, onRemind, remindingId }: OrderTableProps) {
                       disabled={remindingId === order.id}
                     >
                       <Send className="w-3 h-3 mr-1" />
-                      Status anfragen
+                      {t('orders.remind')}
                     </Button>
                   )}
                 </div>

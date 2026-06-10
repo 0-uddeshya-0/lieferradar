@@ -1,5 +1,6 @@
 import { AlertTriangle, CheckCircle, AlertCircle } from 'lucide-react';
-import { RISK_LABELS, type DelayRisk } from '../types';
+import { useI18n } from '../i18n';
+import type { DelayRisk } from '../types';
 import { cn } from '../lib/cn';
 
 const config: Record<DelayRisk, { icon: typeof CheckCircle; color: string }> = {
@@ -9,11 +10,12 @@ const config: Record<DelayRisk, { icon: typeof CheckCircle; color: string }> = {
 };
 
 export function DelayRiskIndicator({ risk }: { risk: DelayRisk }) {
+  const { riskLabel } = useI18n();
   const { icon: Icon, color } = config[risk];
   return (
-    <span className={cn('inline-flex items-center gap-1 text-sm font-medium', color)}>
+    <span className={cn('inline-flex items-center gap-1 text-sm font-medium whitespace-nowrap', color)}>
       <Icon className="w-4 h-4" aria-hidden />
-      {RISK_LABELS[risk]}
+      {riskLabel(risk)}
     </span>
   );
 }

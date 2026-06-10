@@ -14,7 +14,7 @@ Thank you for your interest in contributing.
 ## Code standards
 
 - **TypeScript strict mode** — no `any` without justification
-- **German** for all user-facing strings; English for code and comments
+- **i18n** — user-facing strings in the web app go through `apps/web/src/i18n/translations.ts` (German and English); supplier emails are German. English for code and comments
 - **Zod validation** on all API request bodies
 - **Org scoping** — every protected query must filter by `req.user.orgId`
 - **Tests** — add unit tests for business logic; integration tests for API flows

@@ -6,5 +6,6 @@ dist/
 .DS_Store
 coverage/
 .turbo/
+.claude/
 apps/api/tests/**/*.js
 packages/shared/dist/

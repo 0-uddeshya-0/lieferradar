@@ -11,15 +11,19 @@ import { ImportPage } from './pages/ImportPage';
 import { SupplierStatusPage } from './pages/SupplierStatusPage';
 import { DemoBanner } from './demo/DemoBanner';
 import { isDemoMode } from './demo/config';
+import { useI18n } from './i18n';
+import { LanguageToggle } from './i18n/LanguageToggle';
+import { BrandMark } from './components/BrandMark';
 
 function ProtectedLayout() {
-  const { isAuthenticated, isLoading, logout } = useAuth();
+  const { isAuthenticated, isLoading, logout, organization } = useAuth();
   const location = useLocation();
+  const { t } = useI18n();
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-gray-500">
-        Laden...
+        {t('common.loading')}
       </div>
     );
   }
@@ -31,34 +35,43 @@ function ProtectedLayout() {
   return (
     <div className="min-h-screen">
       {isDemoMode && <DemoBanner />}
-      <header className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <Link to="/dashboard" className="text-lg font-bold text-brand-900">
-              LieferRadar
+      <header className="bg-white/90 backdrop-blur border-b sticky top-0 z-20">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-6 min-w-0">
+            <Link to="/dashboard" className="flex items-center gap-2 shrink-0">
+              <BrandMark />
+              <span className="text-lg font-bold text-brand-900">LieferRadar</span>
             </Link>
             <nav className="flex items-center gap-1">
               <NavLink to="/dashboard" icon={<LayoutDashboard className="w-4 h-4" />}>
-                Dashboard
+                {t('nav.dashboard')}
               </NavLink>
               <NavLink to="/suppliers" icon={<Users className="w-4 h-4" />}>
-                Lieferanten
+                {t('nav.suppliers')}
               </NavLink>
               <NavLink to="/import" icon={<Upload className="w-4 h-4" />}>
-                Importieren
+                {t('nav.import')}
               </NavLink>
             </nav>
           </div>
-          {!isDemoMode && (
-            <button
-              type="button"
-              onClick={() => logout().then(() => { window.location.href = '/login'; })}
-              className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
-            >
-              <LogOut className="w-4 h-4" />
-              Abmelden
-            </button>
-          )}
+          <div className="flex items-center gap-3 shrink-0">
+            {organization && (
+              <span className="hidden md:block text-sm text-gray-500 truncate max-w-[180px]">
+                {organization.name}
+              </span>
+            )}
+            <LanguageToggle />
+            {!isDemoMode && (
+              <button
+                type="button"
+                onClick={() => logout().then(() => { window.location.href = '/login'; })}
+                className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
+              >
+                <LogOut className="w-4 h-4" />
+                {t('nav.logout')}
+              </button>
+            )}
+          </div>
         </div>
       </header>
       <main className="max-w-7xl mx-auto px-4 py-6">
@@ -75,12 +88,12 @@ function NavLink({ to, icon, children }: { to: string; icon: React.ReactNode; ch
   return (
     <Link
       to={to}
-      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${
+      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
         active ? 'bg-brand-50 text-brand-700' : 'text-gray-600 hover:bg-gray-50'
       }`}
     >
       {icon}
-      {children}
+      <span className="hidden sm:inline">{children}</span>
     </Link>
   );
 }

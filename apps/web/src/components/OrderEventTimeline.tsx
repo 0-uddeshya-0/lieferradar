@@ -1,6 +1,7 @@
 import { OrderStatusBadge } from './OrderStatusBadge';
-import { formatDateTime } from '../lib/dates';
+import { useI18n } from '../i18n';
 import type { OrderStatus } from '../types';
+import type { TranslationKey } from '../i18n/translations';
 
 interface Event {
   id: string;
@@ -10,15 +11,17 @@ interface Event {
   createdAt: string;
 }
 
-const sourceLabels: Record<string, string> = {
-  supplier: 'Lieferant',
-  manager: 'Einkauf',
-  system: 'System',
+const SOURCE_KEYS: Record<string, TranslationKey> = {
+  supplier: 'orderDetail.source.supplier',
+  manager: 'orderDetail.source.manager',
+  system: 'orderDetail.source.system',
 };
 
 export function OrderEventTimeline({ events }: { events: Event[] }) {
+  const { t, formatDateTime } = useI18n();
+
   if (events.length === 0) {
-    return <p className="text-gray-500 text-sm">Keine Ereignisse</p>;
+    return <p className="text-gray-500 text-sm">{t('orderDetail.noEvents')}</p>;
   }
 
   return (
@@ -32,7 +35,9 @@ export function OrderEventTimeline({ events }: { events: Event[] }) {
           <div className="pb-4">
             <div className="flex items-center gap-2">
               <OrderStatusBadge status={event.status} />
-              <span className="text-xs text-gray-500">{sourceLabels[event.source] ?? event.source}</span>
+              <span className="text-xs text-gray-500">
+                {SOURCE_KEYS[event.source] ? t(SOURCE_KEYS[event.source]) : event.source}
+              </span>
             </div>
             <p className="text-xs text-gray-500 mt-1">{formatDateTime(event.createdAt)}</p>
             {event.note && <p className="text-sm text-gray-700 mt-1">{event.note}</p>}
