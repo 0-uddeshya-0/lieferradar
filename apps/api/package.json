@@ -1,0 +1,42 @@
+{
+  "name": "@lieferradar/api",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^9.4.0",
+    "@fastify/cors": "^9.0.1",
+    "@fastify/jwt": "^8.0.1",
+    "@fastify/multipart": "^8.3.0",
+    "@fastify/rate-limit": "^9.1.0",
+    "@lieferradar/shared": "workspace:*",
+    "@prisma/client": "^5.19.0",
+    "bcryptjs": "^2.4.3",
+    "csv-parse": "^5.5.6",
+    "date-fns": "^3.6.0",
+    "fastify": "^4.28.0",
+    "nanoid": "^5.0.7",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.15",
+    "pino": "^9.4.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.5",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^22.7.4",
+    "@types/node-cron": "^3.0.11",
+    "@types/nodemailer": "^6.4.16",
+    "@types/supertest": "^6.0.2",
+    "prisma": "^5.19.0",
+    "supertest": "^7.0.0",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2",
+    "vitest": "^2.1.1"
+  }
+}

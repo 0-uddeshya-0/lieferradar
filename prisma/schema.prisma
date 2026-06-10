@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OrderStatus {
+  PENDING
+  RECEIVED
+  IN_PROGRESS
+  SHIPPED
+  DELAYED
+  DELIVERED
+  CANCELLED
+}
+
+enum ReminderType {
+  INITIAL
+  REMINDER_1
+  REMINDER_2
+  MANUAL
+}
+
+model Organization {
+  id        String     @id @default(cuid())
+  name      String
+  email     String     @unique
+  createdAt DateTime   @default(now())
+  users     User[]
+  suppliers Supplier[]
+  orders    Order[]
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  passwordHash  String
+  name          String
+  orgId         String
+  organization  Organization   @relation(fields: [orgId], references: [id])
+  createdAt     DateTime       @default(now())
+  refreshTokens RefreshToken[]
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Supplier {
+  id           String       @id @default(cuid())
+  orgId        String
+  organization Organization @relation(fields: [orgId], references: [id])
+  name         String
+  contactEmail String
+  contactName  String?
+  notes        String?
+  createdAt    DateTime     @default(now())
+  orders       Order[]
+}
+
+model Order {
+  id                 String       @id @default(cuid())
+  orgId              String
+  organization       Organization @relation(fields: [orgId], references: [id])
+  supplierId         String
+  supplier           Supplier     @relation(fields: [supplierId], references: [id])
+  orderNumber        String
+  partDescription    String
+  quantity           Int?
+  unit               String?
+  dueDate            DateTime
+  status             OrderStatus  @default(PENDING)
+  statusNote         String?
+  magicToken         String       @unique @default(cuid())
+  lastSupplierUpdate DateTime?
+  lastReminderSent   DateTime?
+  reminderCount      Int          @default(0)
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  events             OrderEvent[]
+  reminders          Reminder[]
+
+  @@index([orgId])
+  @@index([supplierId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+model OrderEvent {
+  id        String      @id @default(cuid())
+  orderId   String
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    OrderStatus
+  note      String?
+  source    String
+  createdAt DateTime    @default(now())
+
+  @@index([orderId])
+}
+
+model Reminder {
+  id      String       @id @default(cuid())
+  orderId String
+  order   Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  type    ReminderType
+  sentAt  DateTime     @default(now())
+  emailTo String
+
+  @@index([orderId])
+}

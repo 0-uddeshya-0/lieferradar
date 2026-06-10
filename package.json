@@ -1,0 +1,31 @@
+{
+  "name": "lieferradar",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "concurrently \"pnpm --filter @lieferradar/api dev\" \"pnpm --filter @lieferradar/web dev\"",
+    "build": "pnpm --filter @lieferradar/shared build && pnpm --filter @lieferradar/api build && pnpm --filter @lieferradar/web build",
+    "test": "pnpm --filter @lieferradar/api test && pnpm --filter @lieferradar/web test && pnpm --filter @lieferradar/shared test",
+    "prisma": "prisma",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "prisma db seed",
+    "db:generate": "prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.19.0",
+    "bcryptjs": "^2.4.3"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "concurrently": "^9.0.1",
+    "prisma": "^5.19.0",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  }
+}

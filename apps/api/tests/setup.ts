@@ -1,0 +1,12 @@
+process.env.NODE_ENV = 'test';
+process.env.DATABASE_URL ??= 'postgresql://lieferradar:password@localhost:5432/lieferradar';
+process.env.JWT_SECRET ??= 'test-jwt-secret-minimum-32-characters-long';
+process.env.SMTP_HOST ??= 'localhost';
+process.env.SMTP_PORT ??= '1025';
+process.env.SMTP_SECURE ??= 'false';
+process.env.SMTP_USER ??= '';
+process.env.SMTP_PASS ??= '';
+process.env.EMAIL_FROM_NAME ??= 'LieferRadar';
+process.env.EMAIL_FROM_ADDRESS ??= 'test@lieferradar.local';
+process.env.API_URL ??= 'http://localhost:3001';
+process.env.WEB_URL ??= 'http://localhost:5173';
