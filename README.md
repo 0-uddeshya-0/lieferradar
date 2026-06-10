@@ -38,6 +38,17 @@ GitHub Pages serves the static frontend only. For the full product (database, em
 - **JWT auth** — HttpOnly cookie sessions with refresh token rotation
 - **DSGVO-ready** — Organization deletion endpoint and AVV template included
 
+## Roadmap
+
+Sequenced by what pilot customers need next — see [docs/strategy.md](docs/strategy.md) for the reasoning.
+
+1. Team accounts — invite multiple buyers into one organization
+2. Inbound email parsing — supplier replies update order status automatically
+3. ERP connectors (SAP Business One, proAlpha, abas) — CSV-watch first, API second
+4. Order confirmation (AB) matching against PO terms
+5. Per-customer sending domains for deliverability
+6. Opt-in, anonymized supplier reliability benchmarks across organizations
+
 ## Architecture
 
 ```

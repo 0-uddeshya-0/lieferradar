@@ -18,6 +18,9 @@ import { useI18n } from '../i18n';
 import { LanguageToggle } from '../i18n/LanguageToggle';
 import type { TranslationKey } from '../i18n/translations';
 
+// Pilot inquiries land here — replace when a dedicated company address exists.
+const PILOT_CONTACT = 'amisha223singh@gmail.com';
+
 const FEATURES: Array<{ icon: typeof Mail; title: TranslationKey; desc: TranslationKey }> = [
   { icon: Mail, title: 'landing.feature1.title', desc: 'landing.feature1.desc' },
   { icon: Bell, title: 'landing.feature2.title', desc: 'landing.feature2.desc' },
@@ -200,6 +203,20 @@ export function LandingPage() {
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
+          </div>
+        </section>
+
+        <section className="max-w-6xl mx-auto px-4 pb-16">
+          <div className="border border-brand-200 bg-brand-50/50 rounded-2xl p-8 md:p-10 text-center">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">{t('landing.pilot.title')}</h2>
+            <p className="mt-3 text-gray-600 max-w-2xl mx-auto leading-relaxed">{t('landing.pilot.desc')}</p>
+            <a href={`mailto:${PILOT_CONTACT}?subject=LieferRadar%20Pilot`} className="inline-block mt-6">
+              <Button size="lg">
+                {t('landing.pilot.cta')}
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </a>
+            <p className="mt-4 text-xs text-gray-500">{t('landing.pilot.note')}</p>
           </div>
         </section>
       </main>

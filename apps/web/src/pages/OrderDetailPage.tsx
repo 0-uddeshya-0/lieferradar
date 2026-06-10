@@ -1,18 +1,55 @@
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
-import { useOrder } from '../api/orders';
+import { ArrowLeft, Check, Copy } from 'lucide-react';
+import { useOrder, useUpdateOrderStatus } from '../api/orders';
 import { OrderStatusBadge } from '../components/OrderStatusBadge';
 import { DelayRiskIndicator } from '../components/DelayRiskIndicator';
 import { OrderEventTimeline } from '../components/OrderEventTimeline';
+import { Button } from '../components/ui/Button';
 import { useI18n } from '../i18n';
+import { isDemoMode } from '../demo/config';
+import { ORDER_STATUSES, type OrderStatus } from '../types';
+
+function supplierLinkFor(token: string): string {
+  const origin = window.location.origin;
+  return isDemoMode
+    ? `${origin}${import.meta.env.BASE_URL}#/s/${token}`
+    : `${origin}/s/${token}`;
+}
 
 export function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data: order, isLoading } = useOrder(id!);
-  const { t, formatDate } = useI18n();
+  const updateStatus = useUpdateOrderStatus();
+  const { t, statusLabel, formatDate } = useI18n();
+  const [newStatus, setNewStatus] = useState<OrderStatus | ''>('');
+  const [note, setNote] = useState('');
+  const [copied, setCopied] = useState(false);
 
   if (isLoading) return <p className="text-gray-500">{t('common.loading')}</p>;
   if (!order) return <p className="text-risk-red">{t('orderDetail.notFound')}</p>;
+
+  const handleSave = async () => {
+    if (!newStatus) return;
+    await updateStatus.mutateAsync({
+      id: order.id,
+      status: newStatus,
+      note: note.trim() || undefined,
+    });
+    setNewStatus('');
+    setNote('');
+  };
+
+  const handleCopy = async () => {
+    if (!order.magicToken) return;
+    try {
+      await navigator.clipboard.writeText(supplierLinkFor(order.magicToken));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard unavailable (non-secure context) — leave the link selectable
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -55,6 +92,53 @@ export function OrderDetailPage() {
             </div>
           )}
         </dl>
+
+        {order.magicToken && (
+          <div className="mt-6 pt-4 border-t flex flex-wrap items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-gray-700">{t('orderDetail.supplierLink')}</p>
+              <p className="text-xs text-gray-500 mt-0.5">{t('orderDetail.linkHint')}</p>
+              <p className="text-xs font-mono text-gray-600 mt-1 truncate">
+                {supplierLinkFor(order.magicToken)}
+              </p>
+            </div>
+            <Button size="sm" variant="secondary" onClick={handleCopy}>
+              {copied ? <Check className="w-3.5 h-3.5 mr-1 text-risk-green" /> : <Copy className="w-3.5 h-3.5 mr-1" />}
+              {copied ? t('orderDetail.copied') : t('orderDetail.copy')}
+            </Button>
+          </div>
+        )}
+      </div>
+
+      <div className="bg-white border rounded-xl p-6">
+        <h2 className="font-semibold mb-4">{t('orderDetail.updateStatus')}</h2>
+        <div className="flex flex-wrap items-center gap-3">
+          <select
+            className="border rounded-lg px-3 py-2 text-sm bg-white"
+            value={newStatus}
+            onChange={(e) => setNewStatus(e.target.value as OrderStatus | '')}
+          >
+            <option value="">{t('orders.col.status')}...</option>
+            {ORDER_STATUSES.map((status) => (
+              <option key={status} value={status}>{statusLabel(status)}</option>
+            ))}
+          </select>
+          <input
+            type="text"
+            className="border rounded-lg px-3 py-2 text-sm flex-1 min-w-[200px]"
+            placeholder={t('orderDetail.noteOptional')}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            maxLength={1000}
+          />
+          <Button
+            size="sm"
+            onClick={handleSave}
+            disabled={!newStatus || updateStatus.isPending}
+          >
+            {updateStatus.isPending ? t('orderDetail.saving') : t('orderDetail.save')}
+          </Button>
+        </div>
       </div>
 
       <div className="bg-white border rounded-xl p-6">

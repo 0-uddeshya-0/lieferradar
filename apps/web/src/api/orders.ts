@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from './client';
-import type { CreateOrderInput } from '@lieferradar/shared';
+import type { CreateOrderInput, OrderStatus } from '@lieferradar/shared';
 import type { OrderFilters } from '../hooks/useFilters';
 import { isDemoMode } from '../demo/config';
 import * as demoStore from '../demo/store';
@@ -42,6 +42,21 @@ export function useCreateOrder() {
     mutationFn: async (input: CreateOrderInput) => {
       if (isDemoMode) return demoStore.createOrder(input);
       const { data } = await apiClient.post('/orders', input);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+  });
+}
+
+export function useUpdateOrderStatus() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, status, note }: { id: string; status: OrderStatus; note?: string }) => {
+      if (isDemoMode) return demoStore.updateOrderStatus(id, status, note);
+      const { data } = await apiClient.patch(`/orders/${id}/status`, { status, note });
       return data;
     },
     onSuccess: () => {

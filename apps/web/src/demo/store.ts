@@ -88,6 +88,30 @@ export function createOrder(input: CreateOrderInput): DemoOrder {
   return order;
 }
 
+export function updateOrderStatus(id: string, status: OrderStatus, note?: string): DemoOrder | undefined {
+  const existing = orders.find((o) => o.id === id);
+  if (!existing) return undefined;
+  const updated: DemoOrder = {
+    ...existing,
+    status,
+    statusNote: note ?? existing.statusNote,
+    updatedAt: new Date().toISOString(),
+    events: [
+      ...existing.events,
+      {
+        id: nextId('ev'),
+        status,
+        note: note ?? null,
+        source: 'manager',
+        createdAt: new Date().toISOString(),
+      },
+    ],
+  };
+  updated.delayRisk = computeRisk(updated);
+  orders = orders.map((o) => (o.id === id ? updated : o));
+  return updated;
+}
+
 export function remindOrder(id: string): void {
   orders = orders.map((o) =>
     o.id === id

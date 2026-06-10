@@ -44,6 +44,11 @@ const de = {
   'landing.how.step3.desc': 'Dashboard mit Risiko-Ampel und Scorecard zeigt, wo Sie eingreifen müssen.',
   'landing.roi.value': 'Lieferanten-Anfragen automatisiert in 30 Tagen',
   'landing.roi.desc': 'Der ROI-Zähler im Dashboard zeigt, wie viel Nachfassarbeit das System übernimmt — jede automatische Anfrage ist ein Anruf weniger.',
+  'landing.pilot.title': 'Pilotkunden gesucht',
+  'landing.pilot.desc':
+    'Wir suchen Einkaufsteams aus Maschinenbau und Metallverarbeitung (10–250 Mitarbeiter), die LieferRadar acht Wochen kostenlos testen — Einrichtung inklusive. Sie brauchen nur einen CSV-Export Ihrer offenen Bestellungen aus ERP oder Excel.',
+  'landing.pilot.cta': 'Pilotprojekt anfragen',
+  'landing.pilot.note': 'Kostenlos in der Pilotphase · jederzeit beendbar · Daten in Deutschland',
   'landing.footer.full': 'Vollständige Installation mit API, PostgreSQL und E-Mail-Versand:',
   'landing.footer.repo': 'GitHub Repository',
 
@@ -100,6 +105,14 @@ const de = {
   'orderDetail.source.supplier': 'Lieferant',
   'orderDetail.source.manager': 'Einkauf',
   'orderDetail.source.system': 'System',
+  'orderDetail.updateStatus': 'Status aktualisieren',
+  'orderDetail.noteOptional': 'Anmerkung (optional)',
+  'orderDetail.save': 'Speichern',
+  'orderDetail.saving': 'Speichert...',
+  'orderDetail.supplierLink': 'Lieferanten-Link',
+  'orderDetail.linkHint': 'Lieferant aktualisiert den Status über diesen Link — ohne Login.',
+  'orderDetail.copy': 'Link kopieren',
+  'orderDetail.copied': 'Kopiert!',
 
   // New order
   'newOrder.title': 'Neue Bestellung',
@@ -220,6 +233,11 @@ const en: Record<TranslationKey, string> = {
   'landing.how.step3.desc': 'A dashboard with risk indicators and scorecards shows you where to step in.',
   'landing.roi.value': 'supplier requests automated in 30 days',
   'landing.roi.desc': 'The ROI counter on the dashboard shows how much follow-up work the system handles — every automated request is one less phone call.',
+  'landing.pilot.title': 'Looking for pilot customers',
+  'landing.pilot.desc':
+    'We are looking for purchasing teams in machine building and metal processing (10–250 employees) to test LieferRadar free for eight weeks — setup included. All you need is a CSV export of your open orders from your ERP or Excel.',
+  'landing.pilot.cta': 'Request a pilot',
+  'landing.pilot.note': 'Free during the pilot · stop anytime · data hosted in Germany',
   'landing.footer.full': 'Full installation with API, PostgreSQL, and email delivery:',
   'landing.footer.repo': 'GitHub repository',
 
@@ -272,6 +290,14 @@ const en: Record<TranslationKey, string> = {
   'orderDetail.source.supplier': 'Supplier',
   'orderDetail.source.manager': 'Purchasing',
   'orderDetail.source.system': 'System',
+  'orderDetail.updateStatus': 'Update status',
+  'orderDetail.noteOptional': 'Note (optional)',
+  'orderDetail.save': 'Save',
+  'orderDetail.saving': 'Saving...',
+  'orderDetail.supplierLink': 'Supplier link',
+  'orderDetail.linkHint': 'The supplier updates the status through this link — no login required.',
+  'orderDetail.copy': 'Copy link',
+  'orderDetail.copied': 'Copied!',
 
   'newOrder.title': 'New order',
   'newOrder.supplier': 'Supplier',
