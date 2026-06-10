@@ -2,12 +2,15 @@ import { Navigate, Outlet, Route, Routes, Link, useLocation } from 'react-router
 import { LayoutDashboard, Users, Upload, LogOut } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { LoginPage } from './pages/LoginPage';
+import { LandingPage } from './pages/LandingPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { OrderDetailPage } from './pages/OrderDetailPage';
 import { SuppliersPage } from './pages/SuppliersPage';
 import { NewOrderPage } from './pages/NewOrderPage';
 import { ImportPage } from './pages/ImportPage';
 import { SupplierStatusPage } from './pages/SupplierStatusPage';
+import { DemoBanner } from './demo/DemoBanner';
+import { isDemoMode } from './demo/config';
 
 function ProtectedLayout() {
   const { isAuthenticated, isLoading, logout } = useAuth();
@@ -22,11 +25,12 @@ function ProtectedLayout() {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to={isDemoMode ? '/' : '/login'} state={{ from: location }} replace />;
   }
 
   return (
     <div className="min-h-screen">
+      {isDemoMode && <DemoBanner />}
       <header className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-6">
@@ -45,14 +49,16 @@ function ProtectedLayout() {
               </NavLink>
             </nav>
           </div>
-          <button
-            type="button"
-            onClick={() => logout().then(() => { window.location.href = '/login'; })}
-            className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
-          >
-            <LogOut className="w-4 h-4" />
-            Abmelden
-          </button>
+          {!isDemoMode && (
+            <button
+              type="button"
+              onClick={() => logout().then(() => { window.location.href = '/login'; })}
+              className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
+            >
+              <LogOut className="w-4 h-4" />
+              Abmelden
+            </button>
+          )}
         </div>
       </header>
       <main className="max-w-7xl mx-auto px-4 py-6">
@@ -82,6 +88,7 @@ function NavLink({ to, icon, children }: { to: string; icon: React.ReactNode; ch
 export default function App() {
   return (
     <Routes>
+      {isDemoMode && <Route path="/" element={<LandingPage />} />}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/s/:token" element={<SupplierStatusPage />} />
       <Route element={<ProtectedLayout />}>
@@ -91,8 +98,8 @@ export default function App() {
         <Route path="/suppliers" element={<SuppliersPage />} />
         <Route path="/import" element={<ImportPage />} />
       </Route>
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      {!isDemoMode && <Route path="/" element={<Navigate to="/dashboard" replace />} />}
+      <Route path="*" element={<Navigate to={isDemoMode ? '/' : '/dashboard'} replace />} />
     </Routes>
   );
 }

@@ -5,6 +5,8 @@ import axios from 'axios';
 import { CheckCircle } from 'lucide-react';
 import { formatDate } from '../lib/dates';
 import { STATUS_LABELS, type OrderStatus } from '../types';
+import { isDemoMode } from '../demo/config';
+import { DEMO_SUPPLIER_STATUS } from '../demo/mockData';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:3001',
@@ -39,6 +41,7 @@ export function SupplierStatusPage() {
   const { data: order, isLoading, error } = useQuery({
     queryKey: ['supplier-status', token],
     queryFn: async () => {
+      if (isDemoMode && token === 'demo') return DEMO_SUPPLIER_STATUS;
       const { data } = await api.get<SupplierOrder>(`/s/${token}`);
       return data;
     },
@@ -48,6 +51,7 @@ export function SupplierStatusPage() {
 
   const submitMutation = useMutation({
     mutationFn: async () => {
+      if (isDemoMode && token === 'demo') return;
       await api.post(`/s/${token}`, {
         status: selectedStatus,
         note: selectedStatus === 'DELAYED' ? note : undefined,

@@ -1,5 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../api/client';
+import { isDemoMode } from '../demo/config';
+import { DEMO_USER } from '../demo/mockData';
 
 interface AuthUser {
   user: { id: string; email: string; name: string };
@@ -12,6 +14,7 @@ export function useAuth() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['auth', 'me'],
     queryFn: async () => {
+      if (isDemoMode) return DEMO_USER;
       const { data } = await apiClient.get<AuthUser>('/auth/me');
       return data;
     },
@@ -20,6 +23,7 @@ export function useAuth() {
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: { email: string; password: string }) => {
+      if (isDemoMode) return DEMO_USER;
       const { data } = await apiClient.post<AuthUser>('/auth/login', credentials);
       return data;
     },
@@ -35,6 +39,7 @@ export function useAuth() {
       password: string;
       name: string;
     }) => {
+      if (isDemoMode) return DEMO_USER;
       const { data } = await apiClient.post<AuthUser>('/auth/register', input);
       return data;
     },
@@ -45,18 +50,19 @@ export function useAuth() {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
+      if (isDemoMode) return;
       await apiClient.post('/auth/logout');
     },
     onSuccess: () => {
-      queryClient.clear();
+      if (!isDemoMode) queryClient.clear();
     },
   });
 
   return {
     user: data?.user,
     organization: data?.organization,
-    isLoading,
-    isAuthenticated: !!data,
+    isLoading: isDemoMode ? false : isLoading,
+    isAuthenticated: isDemoMode ? true : !!data,
     error,
     login: loginMutation.mutateAsync,
     register: registerMutation.mutateAsync,

@@ -1,8 +1,28 @@
 # LieferRadar
 
+[![CI](https://github.com/0-uddeshya-0/lieferradar/actions/workflows/ci.yml/badge.svg)](https://github.com/0-uddeshya-0/lieferradar/actions/workflows/ci.yml)
+
 **Weniger Lieferanten hinterhertelefonieren. Weniger verspätete Lieferungen.**
 
-LieferRadar is a supplier delay intelligence tool for German manufacturing SMEs. Purchasing and plant managers register open supplier orders, send magic-link status pages to suppliers (no login required), automate follow-up reminders, and monitor delay risk on a live dashboard with supplier reliability scorecards.
+LieferRadar is a supplier delay intelligence tool for German manufacturing SMEs. Purchasing managers register open supplier orders, send magic-link status pages to suppliers (no login required), automate follow-up reminders, and monitor delay risk on a live dashboard with supplier reliability scorecards.
+
+**Live demo:** https://0-uddeshya-0.github.io/lieferradar/
+
+## What works on GitHub Pages vs full deploy
+
+| Feature | GitHub Pages (demo) | Full deploy (local / server) |
+|---------|---------------------|------------------------------|
+| Landing page & product overview | Yes | Yes |
+| Dashboard with orders & filters | Mock data | Live data |
+| Supplier scorecard | Mock data | Live data |
+| Supplier magic-link page | Demo token (`/s/demo`) | Real magic links |
+| CSV import, create orders | UI only (no persistence) | Full functionality |
+| Login / registration | Skipped in demo | JWT with refresh tokens |
+| Email notifications | — | SMTP (Mailgun, Postmark, etc.) |
+| Cron reminders & weekly digest | — | node-cron jobs |
+| API backend | — | Fastify on Node 20 |
+
+GitHub Pages serves the static frontend only. For the full product (database, emails, cron jobs), run locally or deploy the API + PostgreSQL to a server — see [docs/deployment.md](docs/deployment.md).
 
 ## Features
 
@@ -55,7 +75,7 @@ See [docs/architecture.md](docs/architecture.md) for details.
 ## Setup
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/0-uddeshya-0/lieferradar.git
 cd lieferradar
 pnpm install
 
@@ -123,25 +143,11 @@ pnpm test
 
 Unit tests cover delay risk, scorecard, email templates, and Zod schemas. Integration tests cover the auth flow. Frontend tests cover `OrderTable` and `SupplierStatusPage`.
 
+CI runs automatically on push and pull requests to `main`.
+
 ## Email testing (development)
 
 MailHog captures all outbound email when using the default `.env.example` SMTP settings (`localhost:1025`). Open http://localhost:8025 to preview supplier notifications, reminders, and weekly digests.
-
-## Data requirements
-
-- **Organizations & users** — Created via registration
-- **Suppliers** — Created manually or auto-created during CSV import (matched by email)
-- **Orders** — Require supplier, order number, description, and due date
-
-## Outputs
-
-| Output | Location |
-|--------|----------|
-| Dashboard metrics | `GET /dashboard/summary` |
-| Supplier scorecard | `GET /dashboard/scorecard` |
-| Order events | Order detail page / `GET /orders/:id` |
-| Emails | SMTP → MailHog (dev) or configured relay (prod) |
-| Weekly digest | Sent to organization email via cron |
 
 ## Deployment
 
