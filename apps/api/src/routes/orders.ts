@@ -136,6 +136,7 @@ export async function orderRoutes(app: FastifyInstance) {
           partDescription: row.partDescription,
           quantity: row.quantity,
           unit: row.unit,
+          valueCents: row.value !== undefined ? Math.round(row.value * 100) : undefined,
           dueDate: dueDate.toISOString(),
         });
         imported++;

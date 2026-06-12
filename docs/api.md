@@ -53,8 +53,9 @@ All routes require authentication. Scoped to caller's `orgId`.
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/dashboard/summary` | Header stats + ROI metrics |
+| GET | `/dashboard/summary` | Header stats, ROI metrics, `valueAtRiskCents` |
 | GET | `/dashboard/scorecard` | Per-supplier reliability data |
+| GET | `/dashboard/trends` | Last 6 months: orders due, on-time rate, delayed count |
 
 ### Summary response (excerpt)
 
@@ -82,9 +83,23 @@ All routes require authentication. Scoped to caller's `orgId`.
 ```json
 {
   "status": "RECEIVED | IN_PROGRESS | SHIPPED | DELAYED",
-  "note": "Required when status is DELAYED"
+  "note": "Required when status is DELAYED",
+  "confirmedDate": "Optional ISO datetime; the supplier's confirmed delivery date"
 }
 ```
+
+A `confirmedDate` later than the order's `dueDate` marks the order critical
+(AB-Abgleich) and counts its value toward `valueAtRiskCents`.
+
+## Team
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/team/members` | Yes | Members + pending invites |
+| POST | `/team/invites` | Yes | Email an invite (valid 7 days) |
+| DELETE | `/team/invites/:id` | Yes | Revoke a pending invite |
+| GET | `/invites/:token` | No | Invite info for the accept page |
+| POST | `/invites/:token/accept` | No | Create the account (`name`, `password`) |
 
 ## Organizations
 

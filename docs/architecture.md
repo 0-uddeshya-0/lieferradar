@@ -2,13 +2,15 @@
 
 ## Overview
 
-LieferRadar is a pnpm monorepo with three packages:
+LieferRadar is a pnpm monorepo with five packages:
 
 | Package | Role | Stack |
 |---------|------|-------|
-| `@lieferradar/api` | REST API, cron jobs, email | Fastify 4, Prisma, Nodemailer |
+| `@lieferradar/api` | REST API, cron jobs, email, webhooks | Fastify 4, Prisma, Nodemailer |
 | `@lieferradar/web` | Manager dashboard & supplier status UI | React 18, Vite, TanStack Query |
 | `@lieferradar/shared` | Validation schemas & labels | Zod, TypeScript |
+| `@lieferradar/mcp` | MCP server for AI agents | @modelcontextprotocol/sdk |
+| `@lieferradar/csv-watch` | Folder-watching ERP connector | Node 20, REST API client |
 
 ## Request flow
 
@@ -23,8 +25,19 @@ LieferRadar is a pnpm monorepo with three packages:
 ### Supplier workflow
 
 1. Supplier opens magic link (`GET /s/:token`) — no auth
-2. Submits status via `POST /s/:token`
-3. API records `OrderEvent`, updates order, emails manager
+2. Submits status plus an optional confirmed delivery date via `POST /s/:token`
+3. API records `OrderEvent`, updates order (including AB-Abgleich: a confirmed
+   date later than the requested date marks the order critical), emails the
+   manager, and fires the org's webhook (`order.supplier_responded`)
+
+### Integration surface
+
+- **API keys** (`Authorization: Bearer lr_...`) work on every protected route
+- **Webhooks** per organization, HMAC-signed (`order.status_changed`,
+  `order.supplier_responded`, `order.reminder_sent`)
+- **MCP server** (`packages/mcp`) exposes orders/scorecards/reminders as tools
+- **CSV-watch connector** (`packages/csv-watch`) polls a folder for ERP exports
+  and imports them via the API — works with any ERP that can export CSV
 
 ### Background jobs
 
@@ -64,4 +77,6 @@ apps/api/src/
 | `/orders/new` | Protected | Manual order form |
 | `/suppliers` | Protected | Supplier scorecard |
 | `/import` | Protected | CSV upload |
+| `/team` | Protected | Members & invites |
 | `/s/:token` | Public | Supplier status page |
+| `/invite/:token` | Public | Accept team invitation |

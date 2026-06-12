@@ -5,8 +5,8 @@ import { useImportOrders } from '../api/orders';
 import { Button } from '../components/ui/Button';
 import { useI18n } from '../i18n';
 
-const SAMPLE_CSV = `orderNumber,supplierEmail,partDescription,dueDate,quantity,unit
-PO-2026-001,lieferant@mueller.de,Hydraulikzylinder 50mm,2026-09-15,10,Stück`;
+const SAMPLE_CSV = `orderNumber,supplierEmail,partDescription,dueDate,quantity,unit,value
+PO-2026-001,lieferant@mueller.de,Hydraulikzylinder 50mm,2026-09-15,10,Stück,18500.00`;
 
 export function ImportPage() {
   const [file, setFile] = useState<File | null>(null);

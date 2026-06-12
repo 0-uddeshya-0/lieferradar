@@ -11,6 +11,7 @@ import { supplierStatusRoutes } from './routes/supplier-status';
 import { dashboardRoutes } from './routes/dashboard';
 import { organizationRoutes } from './routes/organizations';
 import { settingsRoutes } from './routes/settings';
+import { teamRoutes } from './routes/team';
 import { startReminderJob } from './jobs/reminderJob';
 import { startDigestJob } from './jobs/digestJob';
 import { config } from './config';
@@ -48,6 +49,7 @@ export async function buildApp() {
   await app.register(dashboardRoutes);
   await app.register(organizationRoutes);
   await app.register(settingsRoutes);
+  await app.register(teamRoutes);
 
   if (config.NODE_ENV !== 'test') {
     startReminderJob(app.log);

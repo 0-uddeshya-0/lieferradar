@@ -29,6 +29,7 @@ export async function supplierStatusRoutes(app: FastifyInstance) {
       quantity: order.quantity ?? undefined,
       unit: order.unit ?? undefined,
       dueDate: order.dueDate.toISOString(),
+      confirmedDate: order.confirmedDate?.toISOString(),
       currentStatus: order.status,
       supplierName: order.supplier.name,
       orgName: order.organization.name,
@@ -59,6 +60,7 @@ export async function supplierStatusRoutes(app: FastifyInstance) {
       data: {
         status: body.status,
         statusNote: body.note,
+        confirmedDate: body.confirmedDate ? new Date(body.confirmedDate) : undefined,
         lastSupplierUpdate: new Date(),
         events: {
           create: {

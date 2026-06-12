@@ -1,5 +1,5 @@
 import { Navigate, Outlet, Route, Routes, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Upload, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Upload, LogOut, UsersRound } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { LoginPage } from './pages/LoginPage';
 import { LandingPage } from './pages/LandingPage';
@@ -9,6 +9,8 @@ import { SuppliersPage } from './pages/SuppliersPage';
 import { NewOrderPage } from './pages/NewOrderPage';
 import { ImportPage } from './pages/ImportPage';
 import { SupplierStatusPage } from './pages/SupplierStatusPage';
+import { TeamPage } from './pages/TeamPage';
+import { InvitePage } from './pages/InvitePage';
 import { DemoBanner } from './demo/DemoBanner';
 import { isDemoMode } from './demo/config';
 import { useI18n } from './i18n';
@@ -51,6 +53,9 @@ function ProtectedLayout() {
               </NavLink>
               <NavLink to="/import" icon={<Upload className="w-4 h-4" />}>
                 {t('nav.import')}
+              </NavLink>
+              <NavLink to="/team" icon={<UsersRound className="w-4 h-4" />}>
+                {t('nav.team')}
               </NavLink>
             </nav>
           </div>
@@ -104,12 +109,14 @@ export default function App() {
       {isDemoMode && <Route path="/" element={<LandingPage />} />}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/s/:token" element={<SupplierStatusPage />} />
+      <Route path="/invite/:token" element={<InvitePage />} />
       <Route element={<ProtectedLayout />}>
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/orders/:id" element={<OrderDetailPage />} />
         <Route path="/orders/new" element={<NewOrderPage />} />
         <Route path="/suppliers" element={<SuppliersPage />} />
         <Route path="/import" element={<ImportPage />} />
+        <Route path="/team" element={<TeamPage />} />
       </Route>
       {!isDemoMode && <Route path="/" element={<Navigate to="/dashboard" replace />} />}
       <Route path="*" element={<Navigate to={isDemoMode ? '/' : '/dashboard'} replace />} />

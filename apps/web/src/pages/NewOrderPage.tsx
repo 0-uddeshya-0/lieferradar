@@ -20,6 +20,10 @@ const FormSchema = z.object({
     z.number().int().positive().optional()
   ),
   unit: z.string().max(20).optional(),
+  value: z.preprocess(
+    (v) => (typeof v === 'number' && Number.isNaN(v) ? undefined : v),
+    z.number().nonnegative().optional()
+  ),
   dueDate: z.string().min(1),
 });
 
@@ -36,8 +40,12 @@ export function NewOrderPage() {
   });
 
   const onSubmit = async (data: FormData) => {
-    const dueDate = new Date(data.dueDate).toISOString();
-    await createOrder.mutateAsync({ ...data, dueDate });
+    const { value, ...rest } = data;
+    await createOrder.mutateAsync({
+      ...rest,
+      valueCents: value !== undefined ? Math.round(value * 100) : undefined,
+      dueDate: new Date(data.dueDate).toISOString(),
+    });
     navigate('/dashboard');
   };
 
@@ -63,6 +71,7 @@ export function NewOrderPage() {
         <Input label={t('newOrder.description')} {...register('partDescription')} error={errors.partDescription?.message} />
         <Input label={t('newOrder.quantity')} type="number" {...register('quantity', { valueAsNumber: true })} />
         <Input label={t('newOrder.unit')} placeholder={t('newOrder.unitPlaceholder')} {...register('unit')} />
+        <Input label={t('newOrder.value')} type="number" step="0.01" min="0" {...register('value', { valueAsNumber: true })} />
         <Input label={t('newOrder.dueDate')} type="datetime-local" {...register('dueDate')} error={errors.dueDate?.message} />
 
         <div className="flex gap-3 pt-2">

@@ -13,6 +13,8 @@ Top-level tenant. One organization has many users, suppliers, and orders.
 | id | cuid | Primary key |
 | name | string | Company name |
 | email | string | Unique; used for digest emails |
+| webhookUrl | string? | HTTPS endpoint for outbound events |
+| webhookSecret | string? | HMAC signing secret (returned once) |
 
 ### User
 
@@ -40,7 +42,9 @@ Core tracking entity.
 | Field | Type | Notes |
 |-------|------|-------|
 | orderNumber | string | Internal PO reference |
-| dueDate | DateTime | Expected delivery |
+| valueCents | int? | Order value in euro cents; feeds "value at risk" |
+| dueDate | DateTime | Requested delivery date |
+| confirmedDate | DateTime? | Supplier-confirmed date (AB-Abgleich); later than dueDate ⇒ critical |
 | status | OrderStatus | See enum below |
 | magicToken | string | Unique URL token for supplier page |
 | lastSupplierUpdate | DateTime? | Last supplier interaction |
@@ -50,6 +54,26 @@ Core tracking entity.
 ### OrderStatus enum
 
 `PENDING` → `RECEIVED` → `IN_PROGRESS` → `SHIPPED` / `DELAYED` → `DELIVERED` / `CANCELLED`
+
+### ApiKey
+
+Org-scoped API access for integrations. Only a SHA-256 hash is stored.
+
+| Field | Notes |
+|-------|-------|
+| name | Human label, e.g. "ERP-Connector" |
+| keyHash | Unique SHA-256 of the `lr_...` key |
+| lastUsedAt | Updated on each authenticated request |
+
+### Invite
+
+Single-use team invitation, expires after 7 days.
+
+| Field | Notes |
+|-------|-------|
+| email | Invitee address |
+| token | Unique URL token (`/invite/:token`) |
+| expiresAt / acceptedAt | Validity window and single-use marker |
 
 ### OrderEvent
 

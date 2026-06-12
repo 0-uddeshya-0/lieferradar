@@ -47,6 +47,7 @@ adjacent, not this wedge.
 | ERP dunning module | Already paid for | One-way mail, no structured response, no scorecard, often unused because it needs ERP customizing |
 | SAP Business Network / Ariba | SAP brand, deep S/4 integration | Charges *suppliers* transaction fees past trivial volume — widely resented by small vendors; our suppliers are always free and never log in. Most of our ICP doesn't run SAP at all |
 | Tacto, Onventis, SupplyOn | Breadth, compliance features | Priced and scoped for bigger companies; we are live in a day at a fraction of the cost |
+| Remira (LOGOMATE, S&OP suite) | Demand forecasting, inventory optimization, enterprise references (Zalando, BMW) | Different category: planning suites optimize *what and how much* to order; we close the loop on *whether it actually arrives*. A Remira customer is out-of-ICP, not a lost deal |
 | SourceDay | Mature product | US-centric, English-first, ERP-integration-led sales; no DACH presence or DSGVO data-residency story |
 
 Frequently confused non-competitors: digital agencies and SAP consultancies

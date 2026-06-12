@@ -59,6 +59,7 @@ export function orderWebhookPayload(order: {
   status: string;
   statusNote?: string | null;
   dueDate: Date;
+  confirmedDate?: Date | null;
   supplier: { id: string; name: string };
 }) {
   return {
@@ -67,6 +68,7 @@ export function orderWebhookPayload(order: {
     status: order.status,
     statusNote: order.statusNote ?? null,
     dueDate: order.dueDate.toISOString(),
+    confirmedDate: order.confirmedDate?.toISOString() ?? null,
     supplier: { id: order.supplier.id, name: order.supplier.name },
   };
 }

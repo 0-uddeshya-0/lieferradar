@@ -11,6 +11,8 @@
     "test:e2e": "VITE_DEMO_MODE=true vite build && playwright test"
   },
   "dependencies": {
+    "@fontsource-variable/outfit": "^5.2.8",
+    "@fontsource/inter": "^5.2.8",
     "@hookform/resolvers": "^3.9.0",
     "@lieferradar/shared": "workspace:*",
     "@tanstack/react-query": "^5.59.0",

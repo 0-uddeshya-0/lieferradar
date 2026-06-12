@@ -21,7 +21,7 @@ export function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data: order, isLoading } = useOrder(id!);
   const updateStatus = useUpdateOrderStatus();
-  const { t, statusLabel, formatDate } = useI18n();
+  const { t, statusLabel, formatDate, formatCurrency } = useI18n();
   const [newStatus, setNewStatus] = useState<OrderStatus | ''>('');
   const [note, setNote] = useState('');
   const [copied, setCopied] = useState(false);
@@ -79,6 +79,24 @@ export function OrderDetailPage() {
             <dt className="text-gray-500">{t('orderDetail.dueDate')}</dt>
             <dd className="font-medium">{formatDate(order.dueDate)}</dd>
           </div>
+          {order.confirmedDate && (
+            <div>
+              <dt className="text-gray-500">{t('orderDetail.confirmedDate')}</dt>
+              <dd
+                className={`font-medium ${
+                  new Date(order.confirmedDate) > new Date(order.dueDate) ? 'text-risk-red' : ''
+                }`}
+              >
+                {formatDate(order.confirmedDate)}
+              </dd>
+            </div>
+          )}
+          {order.valueCents != null && (
+            <div>
+              <dt className="text-gray-500">{t('orderDetail.value')}</dt>
+              <dd className="font-medium">{formatCurrency(order.valueCents)}</dd>
+            </div>
+          )}
           {order.quantity && (
             <div>
               <dt className="text-gray-500">{t('orderDetail.quantity')}</dt>

@@ -6,12 +6,16 @@ export type DelayRisk = 'gruen' | 'gelb' | 'rot';
 export function computeDelayRisk(order: {
   status: OrderStatus;
   dueDate: Date;
+  confirmedDate?: Date | null;
   lastSupplierUpdate: Date | null;
   reminderCount: number;
 }): DelayRisk {
   if (order.status === 'DELIVERED' || order.status === 'CANCELLED') return 'gruen';
 
   if (order.status === 'DELAYED') return 'rot';
+
+  // AB-Abgleich: the supplier confirmed a date later than requested.
+  if (order.confirmedDate && order.confirmedDate > order.dueDate) return 'rot';
 
   const today = new Date();
   const daysUntilDue = differenceInDays(order.dueDate, today);

@@ -27,11 +27,13 @@ GitHub Pages serves the static frontend only. For the full product (database, em
 
 ## Features
 
-- **Order management** — Create orders manually or import up to 500 rows via CSV
-- **Supplier magic links** — Mobile-friendly German status page (`/s/:token`) for suppliers
+- **Order management** — Create orders manually or import up to 500 rows via CSV (with order values)
+- **Supplier magic links** — Mobile-friendly status page (`/s/:token`); suppliers confirm status and delivery dates without a login
+- **AB-Abgleich** — Confirmed delivery dates are diffed against requested dates; late confirmations flag the order critical
 - **Automated chasing** — Hourly cron sends reminders after 2 and 5 days of silence
-- **Dashboard** — Filterable order table with RED/YELLOW/GREEN delay risk indicators
+- **Dashboard** — Filterable order table with risk indicators, value at risk in €, and 6-month trend charts
 - **Supplier scorecard** — On-time rate, response time, and responsiveness labels per supplier
+- **Team accounts** — Invite colleagues into the organization via email
 - **ROI metrics** — Dashboard shows automated supplier requests in the last 30 days
 - **Weekly digest** — Monday 08:00 email summary to managers
 - **Bilingual UI** — German/English toggle, persisted per browser
@@ -44,12 +46,10 @@ GitHub Pages serves the static frontend only. For the full product (database, em
 
 Sequenced by what pilot customers need next — see [docs/strategy.md](docs/strategy.md) for the reasoning.
 
-1. Team accounts — invite multiple buyers into one organization
-2. Inbound email parsing — supplier replies update order status automatically
-3. ERP connectors (SAP Business One, proAlpha, abas) — CSV-watch first, API second
-4. Order confirmation (AB) matching against PO terms
-5. Per-customer sending domains for deliverability
-6. Opt-in, anonymized supplier reliability benchmarks across organizations
+1. Inbound email parsing — supplier replies update order status automatically
+2. Native ERP connectors (SAP Business One Service Layer, proAlpha, abas) — the CSV-watch agent covers every ERP today
+3. Per-customer sending domains for deliverability
+4. Opt-in, anonymized supplier reliability benchmarks across organizations
 
 ## Architecture
 
@@ -74,6 +74,8 @@ lieferradar/
 ├── apps/api/          # Fastify backend
 ├── apps/web/          # React frontend
 ├── packages/shared/   # Zod schemas & shared types
+├── packages/mcp/      # MCP server for AI agents
+├── packages/csv-watch/# Folder-watching ERP connector
 ├── prisma/            # Schema, migrations, seed
 ├── scripts/           # Test data generator
 └── docs/              # Architecture, API, deployment
@@ -128,9 +130,11 @@ pnpm dev
 ### CSV import format
 
 ```csv
-orderNumber,supplierEmail,partDescription,dueDate,quantity,unit
-PO-2024-001,lieferant@mueller.de,Hydraulikzylinder 50mm,2024-12-15,10,Stück
+orderNumber,supplierEmail,partDescription,dueDate,quantity,unit,value
+PO-2026-001,lieferant@mueller.de,Hydraulikzylinder 50mm,2026-09-15,10,Stück,18500.00
 ```
+
+`value` is the order value in EUR and feeds the dashboard's "value at risk" metric.
 
 ## Configuration
 

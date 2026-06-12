@@ -26,6 +26,7 @@ export interface I18n {
   formatDate: (date: string | Date) => string;
   formatDateTime: (date: string | Date) => string;
   formatRelative: (date: string | Date) => string;
+  formatCurrency: (cents: number) => string;
 }
 
 function buildI18n(lang: Lang, setLang: (lang: Lang) => void): I18n {
@@ -55,6 +56,12 @@ function buildI18n(lang: Lang, setLang: (lang: Lang) => void): I18n {
     formatDateTime: (date) => format(new Date(date), dateTimePattern, { locale: dateLocale }),
     formatRelative: (date) =>
       formatDistanceToNow(new Date(date), { addSuffix: true, locale: dateLocale }),
+    formatCurrency: (cents) =>
+      new Intl.NumberFormat(lang === 'de' ? 'de-DE' : 'en-GB', {
+        style: 'currency',
+        currency: 'EUR',
+        maximumFractionDigits: 0,
+      }).format(cents / 100),
   };
 }
 

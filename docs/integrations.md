@@ -110,15 +110,32 @@ Tools: `list_orders`, `get_order`, `create_order`, `update_order_status`,
 `get_dashboard_summary`. The server is a thin wrapper over the REST API, so
 org scoping and validation are enforced server-side, not by the agent.
 
-## 4. ERP connectors (roadmap)
+## 4. CSV-watch connector (any ERP, today)
 
-CSV import covers every ERP that can export — which is all of them — and stays
-the zero-risk onboarding path. Planned connectors, in order:
+`packages/csv-watch` ships a small agent that watches a folder for CSV exports
+and imports each new file via the API. Point your ERP's existing export job
+(or a scheduled report) at the folder; no ERP-side installation.
 
-1. **CSV-watch agent** — a small watcher on a network share or SFTP folder
-   that imports new exports automatically (works with any ERP, no IT project)
-2. **SAP Business One** — Service Layer / DI-API: open POs in, statuses back
-3. **proAlpha / abas** — REST interfaces, same pattern
+```bash
+pnpm --filter @lieferradar/csv-watch build
+
+LIEFERRADAR_API_URL=https://api.example.de \
+LIEFERRADAR_API_KEY=lr_... \
+LIEFERRADAR_WATCH_DIR=/srv/erp-exports/lieferradar \
+node packages/csv-watch/dist/index.js
+```
+
+Processed files move to `processed/`, failures to `failed/`, both timestamped,
+so the folder doubles as an audit trail. Run it under systemd or as a Windows
+scheduled task next to the ERP.
+
+Expected CSV columns: `orderNumber, supplierEmail, partDescription, dueDate`
+plus optional `quantity, unit, value` (value in EUR, e.g. `1234.56`).
+
+## 5. Native ERP connectors (roadmap)
+
+1. **SAP Business One** — Service Layer / DI-API: open POs in, statuses back
+2. **proAlpha / abas** — REST interfaces, same pattern
 
 The connector strategy is deliberate: meet the ERP where it is, never require
 the supplier to touch it.

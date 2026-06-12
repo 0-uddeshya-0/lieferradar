@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom';
-import { Upload, Package, CalendarX, TimerOff, BellOff, Zap, Plus } from 'lucide-react';
+import { Upload, Package, CalendarX, TimerOff, Banknote, Zap, Plus } from 'lucide-react';
 import { useDashboardSummary } from '../api/dashboard';
 import { useOrders, useRemindOrder } from '../api/orders';
 import { useSuppliers } from '../api/suppliers';
 import { useFilters } from '../hooks/useFilters';
 import { OrderTable } from '../components/OrderTable';
+import { TrendsCard } from '../components/TrendsCard';
 import { Button } from '../components/ui/Button';
 import { useI18n } from '../i18n';
 import { ORDER_STATUSES, type OrderStatus } from '../types';
@@ -17,11 +18,12 @@ function StatCard({
   alert,
 }: {
   label: string;
-  value: number;
+  value: number | string;
   icon: typeof Package;
   highlight?: boolean;
   alert?: boolean;
 }) {
+  const isAlerting = alert && (typeof value === 'number' ? value > 0 : true);
   return (
     <div
       className={
@@ -35,8 +37,8 @@ function StatCard({
         <Icon className={`w-4 h-4 shrink-0 ${highlight ? 'text-brand-200' : 'text-gray-400'}`} />
       </div>
       <p
-        className={`text-2xl font-bold mt-1 ${
-          highlight ? 'text-white' : alert && value > 0 ? 'text-risk-red' : 'text-gray-900'
+        className={`text-2xl font-bold mt-1 tabular-nums ${
+          highlight ? 'text-white' : isAlerting ? 'text-risk-red' : 'text-gray-900'
         }`}
       >
         {value}
@@ -51,7 +53,7 @@ export function DashboardPage() {
   const { data: ordersData, isLoading } = useOrders(filters);
   const { data: suppliers } = useSuppliers();
   const remindMutation = useRemindOrder();
-  const { t, statusLabel } = useI18n();
+  const { t, statusLabel, formatCurrency } = useI18n();
 
   const orders = ordersData?.orders ?? [];
 
@@ -77,11 +79,16 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
         <StatCard label={t('dashboard.stats.active')} value={summary?.totalActiveOrders ?? 0} icon={Package} />
         <StatCard label={t('dashboard.stats.overdue')} value={summary?.overdueOrders ?? 0} icon={CalendarX} alert />
         <StatCard label={t('dashboard.stats.delayed')} value={summary?.delayedOrders ?? 0} icon={TimerOff} alert />
-        <StatCard label={t('dashboard.stats.silent')} value={summary?.silentSuppliers ?? 0} icon={BellOff} />
+        <StatCard
+          label={t('dashboard.stats.valueAtRisk')}
+          value={formatCurrency(summary?.valueAtRiskCents ?? 0)}
+          icon={Banknote}
+          alert={(summary?.valueAtRiskCents ?? 0) > 0}
+        />
         <StatCard
           label={t('dashboard.stats.automated')}
           value={summary?.remindersAutomatedThisMonth ?? 0}
@@ -147,6 +154,8 @@ export function DashboardPage() {
           remindingId={remindMutation.isPending ? remindMutation.variables : undefined}
         />
       )}
+
+      <TrendsCard />
     </div>
   );
 }

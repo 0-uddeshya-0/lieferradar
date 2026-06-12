@@ -15,6 +15,25 @@ export function useDashboardSummary() {
   });
 }
 
+export function useTrends() {
+  return useQuery({
+    queryKey: ['dashboard', 'trends'] as const,
+    queryFn: async () => {
+      if (isDemoMode) return demoStore.getTrends();
+      const { data } = await apiClient.get('/dashboard/trends');
+      return data as {
+        months: Array<{
+          month: string;
+          ordersDue: number;
+          delivered: number;
+          onTimeRate: number | null;
+          delayed: number;
+        }>;
+      };
+    },
+  });
+}
+
 export function useScorecard() {
   return useQuery({
     queryKey: QUERY_KEYS.scorecard(),

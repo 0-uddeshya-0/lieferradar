@@ -1,6 +1,7 @@
 import {
   DEMO_ORDERS,
   DEMO_SUPPLIERS,
+  DEMO_MEMBERS,
   type DemoOrder,
   type DemoSupplier,
 } from './mockData';
@@ -11,6 +12,7 @@ import type { OrderFilters } from '../hooks/useFilters';
 // demo behaves like a real app until the page is reloaded.
 let orders: DemoOrder[] = DEMO_ORDERS.map((o) => ({ ...o, events: [...o.events] }));
 let suppliers: DemoSupplier[] = [...DEMO_SUPPLIERS];
+let pendingInvites: Array<{ id: string; email: string; createdAt: string; expiresAt: string }> = [];
 let manualReminders = 0;
 let idCounter = 0;
 
@@ -22,9 +24,14 @@ function nextId(prefix: string) {
   return `${prefix}-demo-${idCounter}`;
 }
 
-function computeRisk(order: Pick<DemoOrder, 'status' | 'dueDate' | 'reminderCount'>): DelayRisk {
+function isLateConfirmed(o: Pick<DemoOrder, 'confirmedDate' | 'dueDate'>): boolean {
+  return !!o.confirmedDate && new Date(o.confirmedDate) > new Date(o.dueDate);
+}
+
+function computeRisk(order: Pick<DemoOrder, 'status' | 'dueDate' | 'confirmedDate' | 'reminderCount'>): DelayRisk {
   if (CLOSED.includes(order.status)) return 'gruen';
   if (order.status === 'DELAYED') return 'rot';
+  if (isLateConfirmed(order)) return 'rot';
   const daysUntilDue = (new Date(order.dueDate).getTime() - Date.now()) / 86_400_000;
   if (daysUntilDue < 0) return 'rot';
   if (daysUntilDue <= 7 || order.reminderCount >= 2) return 'gelb';
@@ -32,8 +39,8 @@ function computeRisk(order: Pick<DemoOrder, 'status' | 'dueDate' | 'reminderCoun
 }
 
 export function listOrders(filters?: OrderFilters): DemoOrder[] {
-  let result = [...orders];
-  if (filters?.status) result = result.filter((o) => o.status === filters.status);
+  let result = orders.filter((o) => !CLOSED.includes(o.status));
+  if (filters?.status) result = orders.filter((o) => o.status === filters.status);
   if (filters?.supplierId) result = result.filter((o) => o.supplier.id === filters.supplierId);
   if (filters?.overdueOnly) {
     result = result.filter(
@@ -42,7 +49,7 @@ export function listOrders(filters?: OrderFilters): DemoOrder[] {
   }
   if (filters?.search) {
     const q = filters.search.toLowerCase();
-    result = result.filter(
+    result = orders.filter(
       (o) =>
         o.orderNumber.toLowerCase().includes(q) ||
         o.partDescription.toLowerCase().includes(q)
@@ -63,7 +70,9 @@ export function createOrder(input: CreateOrderInput): DemoOrder {
     partDescription: input.partDescription,
     quantity: input.quantity,
     unit: input.unit,
+    valueCents: input.valueCents ?? null,
     dueDate: input.dueDate,
+    confirmedDate: null,
     status: 'PENDING',
     delayRisk: 'gruen',
     updatedAt: new Date().toISOString(),
@@ -178,6 +187,8 @@ export function importCsv(text: string): { imported: number; errors: Array<{ row
     const supplier = findOrCreateSupplierByEmail(supplierEmail);
     const quantityRaw = col('quantity') >= 0 ? cells[col('quantity')] : undefined;
     const quantity = quantityRaw ? Number(quantityRaw) : undefined;
+    const valueRaw = col('value') >= 0 ? cells[col('value')] : undefined;
+    const value = valueRaw ? Number(valueRaw) : undefined;
 
     createOrder({
       supplierId: supplier.id,
@@ -185,6 +196,7 @@ export function importCsv(text: string): { imported: number; errors: Array<{ row
       partDescription,
       quantity: quantity && Number.isFinite(quantity) ? quantity : undefined,
       unit: col('unit') >= 0 ? cells[col('unit')] || undefined : undefined,
+      valueCents: value !== undefined && Number.isFinite(value) ? Math.round(value * 100) : undefined,
       dueDate: dueDate.toISOString(),
     });
     imported += 1;
@@ -201,6 +213,11 @@ export function getSummary() {
     active.filter((o) => o.reminderCount >= 2 && o.status === 'PENDING').map((o) => o.supplier.id)
   );
   const automated = BASE_AUTOMATED_REMINDERS + manualReminders;
+  const valueAtRiskCents = active
+    .filter(
+      (o) => new Date(o.dueDate) < new Date() || o.status === 'DELAYED' || isLateConfirmed(o)
+    )
+    .reduce((sum, o) => sum + (o.valueCents ?? 0), 0);
 
   return {
     totalActiveOrders: active.length,
@@ -211,25 +228,84 @@ export function getSummary() {
     remindersAutomatedThisMonth: automated,
     supplierResponsesThisMonth: 8,
     estimatedCallsAvoided: automated,
+    valueAtRiskCents,
   };
+}
+
+export function getTrends() {
+  const months: Array<{ month: string; ordersDue: number; delivered: number; onTimeRate: number | null; delayed: number }> = [];
+  for (let i = 5; i >= 0; i--) {
+    const monthStart = new Date();
+    monthStart.setMonth(monthStart.getMonth() - i, 1);
+    monthStart.setHours(0, 0, 0, 0);
+    const monthEnd = new Date(monthStart);
+    monthEnd.setMonth(monthEnd.getMonth() + 1);
+
+    const dueInMonth = orders.filter((o) => {
+      const due = new Date(o.dueDate);
+      return due >= monthStart && due < monthEnd;
+    });
+    const delivered = dueInMonth.filter((o) => o.status === 'DELIVERED');
+    const onTime = delivered.filter((o) => !o.events.some((e) => e.status === 'DELAYED'));
+    const delayed = dueInMonth.filter(
+      (o) => o.status === 'DELAYED' || o.events.some((e) => e.status === 'DELAYED')
+    );
+
+    months.push({
+      month: `${monthStart.getFullYear()}-${String(monthStart.getMonth() + 1).padStart(2, '0')}`,
+      ordersDue: dueInMonth.length,
+      delivered: delivered.length,
+      onTimeRate: delivered.length > 0 ? onTime.length / delivered.length : null,
+      delayed: delayed.length,
+    });
+  }
+  return { months };
 }
 
 type Responsiveness = 'gut' | 'mittel' | 'schlecht';
 
-const SEED_METRICS: Record<string, { onTimeRate: number; avgResponseHours: number; responsiveness: Responsiveness }> = {
-  'sup-1': { onTimeRate: 0.5, avgResponseHours: 96, responsiveness: 'schlecht' },
-  'sup-2': { onTimeRate: 0.8, avgResponseHours: 36, responsiveness: 'mittel' },
-  'sup-3': { onTimeRate: 1.0, avgResponseHours: 12, responsiveness: 'gut' },
-};
-
 function supplierMetrics(supplierId: string) {
-  const seed = SEED_METRICS[supplierId] ?? { onTimeRate: 1.0, avgResponseHours: 24, responsiveness: 'gut' as Responsiveness };
   const supplierOrders = orders.filter((o) => o.supplier.id === supplierId);
+  const delivered = supplierOrders.filter((o) => o.status === 'DELIVERED');
+  const onTime = delivered.filter((o) => !o.events.some((e) => e.status === 'DELAYED'));
+  const onTimeRate = delivered.length > 0 ? onTime.length / delivered.length : 1.0;
+
+  // Hours from order creation to first supplier event.
+  const responseTimes = supplierOrders
+    .map((o) => {
+      const created = new Date(o.events[0]?.createdAt ?? o.updatedAt).getTime();
+      const firstSupplierEvent = o.events.find((e) => e.source === 'supplier');
+      return firstSupplierEvent
+        ? (new Date(firstSupplierEvent.createdAt).getTime() - created) / 3_600_000
+        : null;
+    })
+    .filter((h): h is number => h !== null && h >= 0);
+  const avgResponseHours =
+    responseTimes.length > 0
+      ? responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length
+      : null;
+
+  const unresponsiveCount = supplierOrders.filter(
+    (o) => o.reminderCount >= 2 && o.status === 'PENDING'
+  ).length;
+  const delayCount = supplierOrders.filter(
+    (o) => o.status === 'DELAYED' || o.events.some((e) => e.status === 'DELAYED')
+  ).length;
+
+  let responsiveness: Responsiveness = 'gut';
+  if (unresponsiveCount > 0 || avgResponseHours === null || avgResponseHours > 72 || onTimeRate < 0.7) {
+    responsiveness = 'schlecht';
+  } else if (avgResponseHours > 24 || onTimeRate < 0.9 || delayCount > 1) {
+    responsiveness = 'mittel';
+  }
+
   return {
-    ...seed,
     totalOrders: supplierOrders.length,
-    delayCount: supplierOrders.filter((o) => o.status === 'DELAYED').length,
-    unresponsiveCount: supplierOrders.filter((o) => o.reminderCount >= 2 && o.status === 'PENDING').length,
+    onTimeRate,
+    avgResponseHours: avgResponseHours ?? 0,
+    delayCount,
+    unresponsiveCount,
+    responsiveness,
   };
 }
 
@@ -251,6 +327,7 @@ export function getSupplierDetail(id: string) {
     metrics: supplierMetrics(id),
     orders: orders
       .filter((o) => o.supplier.id === id)
+      .slice(0, 10)
       .map((o) => ({
         id: o.id,
         orderNumber: o.orderNumber,
@@ -260,4 +337,23 @@ export function getSupplierDetail(id: string) {
         delayRisk: o.delayRisk,
       })),
   };
+}
+
+export function getTeam() {
+  return { members: DEMO_MEMBERS, pendingInvites };
+}
+
+export function inviteMember(email: string) {
+  const invite = {
+    id: nextId('inv'),
+    email,
+    createdAt: new Date().toISOString(),
+    expiresAt: new Date(Date.now() + 7 * 86_400_000).toISOString(),
+  };
+  pendingInvites = [invite, ...pendingInvites];
+  return invite;
+}
+
+export function revokeInvite(id: string) {
+  pendingInvites = pendingInvites.filter((i) => i.id !== id);
 }

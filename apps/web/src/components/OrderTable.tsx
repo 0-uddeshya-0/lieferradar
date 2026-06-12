@@ -11,6 +11,8 @@ interface Order {
   orderNumber: string;
   partDescription: string;
   dueDate: string;
+  confirmedDate?: string | null;
+  valueCents?: number | null;
   status: OrderStatus;
   delayRisk: DelayRisk;
   updatedAt: string;
@@ -24,7 +26,7 @@ interface OrderTableProps {
 }
 
 export function OrderTable({ orders, onRemind, remindingId }: OrderTableProps) {
-  const { t, formatDate, formatRelative } = useI18n();
+  const { t, formatDate, formatRelative, formatCurrency } = useI18n();
 
   if (orders.length === 0) {
     return (
@@ -43,6 +45,7 @@ export function OrderTable({ orders, onRemind, remindingId }: OrderTableProps) {
             <th className="px-4 py-3 font-medium">{t('orders.col.supplier')}</th>
             <th className="px-4 py-3 font-medium">{t('orders.col.description')}</th>
             <th className="px-4 py-3 font-medium">{t('orders.col.dueDate')}</th>
+            <th className="px-4 py-3 font-medium text-right">{t('orders.col.value')}</th>
             <th className="px-4 py-3 font-medium">{t('orders.col.status')}</th>
             <th className="px-4 py-3 font-medium">{t('orders.col.risk')}</th>
             <th className="px-4 py-3 font-medium">{t('orders.col.activity')}</th>
@@ -59,7 +62,17 @@ export function OrderTable({ orders, onRemind, remindingId }: OrderTableProps) {
               </td>
               <td className="px-4 py-3">{order.supplier.name}</td>
               <td className="px-4 py-3 max-w-xs truncate">{order.partDescription}</td>
-              <td className="px-4 py-3 whitespace-nowrap">{formatDate(order.dueDate)}</td>
+              <td className="px-4 py-3 whitespace-nowrap">
+                {formatDate(order.dueDate)}
+                {order.confirmedDate && new Date(order.confirmedDate) > new Date(order.dueDate) && (
+                  <span className="block text-xs text-risk-red font-medium">
+                    {t('orders.confirmedShort')}: {formatDate(order.confirmedDate)}
+                  </span>
+                )}
+              </td>
+              <td className="px-4 py-3 whitespace-nowrap text-right text-gray-700 tabular-nums">
+                {order.valueCents != null ? formatCurrency(order.valueCents) : '-'}
+              </td>
               <td className="px-4 py-3">
                 <OrderStatusBadge status={order.status} />
               </td>

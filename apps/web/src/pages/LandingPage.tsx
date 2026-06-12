@@ -39,11 +39,11 @@ const STEPS: Array<{ title: TranslationKey; desc: TranslationKey; icon: typeof U
 ];
 
 function DashboardPreview() {
-  const { t } = useI18n();
+  const { t, formatCurrency } = useI18n();
   const rows: Array<{ no: string; risk: 'rot' | 'gelb' | 'gruen'; status: TranslationKey }> = [
-    { no: 'PO-2026-089', risk: 'rot', status: 'orderStatus.DELAYED' },
-    { no: 'PO-2026-102', risk: 'gelb', status: 'orderStatus.IN_PROGRESS' },
-    { no: 'PO-2026-115', risk: 'gruen', status: 'orderStatus.SHIPPED' },
+    { no: 'PO-2026-118', risk: 'rot', status: 'orderStatus.DELAYED' },
+    { no: 'PO-2026-120', risk: 'gelb', status: 'orderStatus.IN_PROGRESS' },
+    { no: 'PO-2026-122', risk: 'gruen', status: 'orderStatus.SHIPPED' },
   ];
   const riskIcon = {
     rot: <AlertCircle className="w-4 h-4 text-risk-red" />,
@@ -63,16 +63,16 @@ function DashboardPreview() {
         <div className="p-5">
           <div className="grid grid-cols-3 gap-3 mb-5">
             <div className="rounded-lg border p-3">
-              <p className="text-xs text-gray-500">{t('dashboard.stats.active')}</p>
-              <p className="text-xl font-bold">12</p>
+              <p className="text-xs text-gray-500 truncate">{t('dashboard.stats.overdue')}</p>
+              <p className="text-xl font-bold text-risk-red tabular-nums">3</p>
             </div>
             <div className="rounded-lg border p-3">
-              <p className="text-xs text-gray-500">{t('dashboard.stats.overdue')}</p>
-              <p className="text-xl font-bold text-risk-red">3</p>
+              <p className="text-xs text-gray-500 truncate">{t('dashboard.stats.valueAtRisk')}</p>
+              <p className="text-xl font-bold text-risk-red tabular-nums">{formatCurrency(3890000)}</p>
             </div>
             <div className="rounded-lg bg-brand-600 p-3 text-white">
-              <p className="text-xs text-brand-100">{t('dashboard.stats.automated')}</p>
-              <p className="text-xl font-bold">23</p>
+              <p className="text-xs text-brand-100 truncate">{t('dashboard.stats.automated')}</p>
+              <p className="text-xl font-bold tabular-nums">23</p>
             </div>
           </div>
           <div className="divide-y text-sm">
@@ -102,13 +102,13 @@ export function LandingPage() {
             <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-brand-600 text-white">
               <Radar className="w-5 h-5" />
             </span>
-            <span className="text-xl font-bold text-brand-900">LieferRadar</span>
+            <span className="text-xl font-bold text-brand-900 font-display">LieferRadar</span>
           </span>
           <div className="flex items-center gap-3">
             <LanguageToggle />
             <Link to="/dashboard">
               <Button size="sm">
-                {t('landing.cta.demo')}
+                {t('landing.hero.primary')}
                 <ArrowRight className="w-4 h-4 ml-1" />
               </Button>
             </Link>
@@ -129,7 +129,7 @@ export function LandingPage() {
               <ShieldCheck className="w-3.5 h-3.5" />
               {t('landing.hero.badge')}
             </span>
-            <h1 className="mt-6 text-4xl md:text-6xl font-extrabold text-gray-900 tracking-tight leading-tight">
+            <h1 className="mt-6 font-display text-4xl md:text-6xl font-bold text-gray-900 tracking-tight leading-tight">
               {t('landing.hero.line1')}
               <br />
               <span className="bg-gradient-to-r from-brand-600 to-brand-400 bg-clip-text text-transparent">
@@ -165,26 +165,72 @@ export function LandingPage() {
 
         <section className="max-w-6xl mx-auto px-4 py-16">
           <div className="text-center mb-10">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">{t('landing.features.title')}</h2>
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-gray-900">{t('landing.features.title')}</h2>
             <p className="mt-2 text-gray-600">{t('landing.features.sub')}</p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {FEATURES.map((feature, i) => (
+          <div className="grid md:grid-cols-6 gap-5">
+            {/* Magic-link cell: large, brand-tinted, with a live miniature of the supplier page */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+              className="md:col-span-4 rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-50 to-white p-6 md:p-8 flex flex-col md:flex-row gap-6 items-center"
+            >
+              <div className="flex-1">
+                <span className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-brand-600 text-white mb-4">
+                  <Mail className="w-5 h-5" />
+                </span>
+                <h3 className="font-display font-semibold text-lg text-gray-900">{t('landing.feature1.title')}</h3>
+                <p className="text-sm text-gray-600 mt-2 leading-relaxed">{t('landing.feature1.desc')}</p>
+              </div>
+              <div className="w-full md:w-64 shrink-0 rounded-xl border bg-white shadow-sm p-4 space-y-2" aria-hidden>
+                <p className="text-xs text-gray-400">PO-2026-118</p>
+                <div className="rounded-lg border-2 border-brand-600 bg-brand-50 px-3 py-2 text-xs font-medium text-brand-900">
+                  {t('orderStatus.SHIPPED')}
+                </div>
+                <div className="rounded-lg border-2 border-gray-200 px-3 py-2 text-xs text-gray-600">
+                  {t('orderStatus.DELAYED')}
+                </div>
+                <div className="rounded-lg bg-brand-600 px-3 py-2 text-center text-xs font-medium text-white">
+                  {t('status.send')}
+                </div>
+              </div>
+            </motion.div>
+
+            {[FEATURES[1], FEATURES[2], FEATURES[3], FEATURES[4]].map((feature, i) => (
               <motion.div
                 key={feature.title}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
                 transition={{ duration: 0.4, delay: (i % 3) * 0.08, ease: 'easeOut' }}
-                className="group bg-white border border-gray-200 rounded-xl p-6 transition-shadow hover:shadow-md"
+                className={`${i === 0 ? 'md:col-span-2' : 'md:col-span-2'} group bg-white border border-gray-200 rounded-2xl p-6 transition-shadow hover:shadow-md`}
               >
                 <span className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-brand-50 text-brand-600 mb-4 group-hover:bg-brand-600 group-hover:text-white transition-colors">
                   <feature.icon className="w-5 h-5" />
                 </span>
-                <h3 className="font-semibold text-gray-900">{t(feature.title)}</h3>
+                <h3 className="font-display font-semibold text-gray-900">{t(feature.title)}</h3>
                 <p className="text-sm text-gray-600 mt-2 leading-relaxed">{t(feature.desc)}</p>
               </motion.div>
             ))}
+
+            {/* DSGVO cell: full-width trust band */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+              className="md:col-span-6 rounded-2xl border border-gray-200 bg-gray-50 p-6 flex items-center gap-4"
+            >
+              <span className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-risk-green/10 text-risk-green shrink-0">
+                <ShieldCheck className="w-5 h-5" />
+              </span>
+              <div>
+                <h3 className="font-display font-semibold text-gray-900">{t('landing.feature6.title')}</h3>
+                <p className="text-sm text-gray-600 mt-1">{t('landing.feature6.desc')}</p>
+              </div>
+            </motion.div>
           </div>
         </section>
 
@@ -201,7 +247,7 @@ export function LandingPage() {
                 <Plug className="w-5 h-5" />
               </span>
               <div>
-                <h2 className="text-xl md:text-2xl font-bold">{t('landing.integrations.title')}</h2>
+                <h2 className="font-display text-xl md:text-2xl font-bold">{t('landing.integrations.title')}</h2>
                 <p className="mt-2 text-gray-300 leading-relaxed max-w-3xl">{t('landing.integrations.desc')}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {['REST API', 'Webhooks', 'n8n · Make · Zapier', t('landing.integrations.mcp'), 'CSV', t('landing.integrations.erp')].map((chip) => (
@@ -217,7 +263,7 @@ export function LandingPage() {
 
         <section className="bg-gray-50 border-y">
           <div className="max-w-6xl mx-auto px-4 py-16">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-12">
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-gray-900 text-center mb-12">
               {t('landing.how.title')}
             </h2>
             <div className="grid md:grid-cols-3 gap-8">
@@ -252,7 +298,7 @@ export function LandingPage() {
 
         <section className="max-w-6xl mx-auto px-4 pb-16">
           <div className="border border-brand-200 bg-brand-50/50 rounded-2xl p-8 md:p-10 text-center">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">{t('landing.pilot.title')}</h2>
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-gray-900">{t('landing.pilot.title')}</h2>
             <p className="mt-3 text-gray-600 max-w-2xl mx-auto leading-relaxed">{t('landing.pilot.desc')}</p>
             <a href={`mailto:${PILOT_CONTACT}?subject=LieferRadar%20Pilot`} className="inline-block mt-6">
               <Button size="lg">

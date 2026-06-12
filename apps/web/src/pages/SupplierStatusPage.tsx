@@ -20,6 +20,7 @@ type SupplierOrder = {
   quantity?: number;
   unit?: string;
   dueDate: string;
+  confirmedDate?: string | null;
   currentStatus: OrderStatus;
   supplierName: string;
   orgName: string;
@@ -33,6 +34,7 @@ export function SupplierStatusPage() {
   const { token } = useParams<{ token: string }>();
   const [selectedStatus, setSelectedStatus] = useState<SupplierStatus | null>(null);
   const [note, setNote] = useState('');
+  const [confirmedDate, setConfirmedDate] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const { t, statusLabel, formatDate } = useI18n();
 
@@ -53,6 +55,7 @@ export function SupplierStatusPage() {
       await api.post(`/s/${token}`, {
         status: selectedStatus,
         note: selectedStatus === 'DELAYED' ? note : undefined,
+        confirmedDate: confirmedDate ? new Date(confirmedDate).toISOString() : undefined,
       });
     },
     onSuccess: () => setSubmitted(true),
@@ -150,6 +153,21 @@ export function SupplierStatusPage() {
             </button>
           ))}
         </div>
+
+        {selectedStatus !== null && (
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="confirmed-date">
+              {t('status.confirmedDate')}
+            </label>
+            <input
+              id="confirmed-date"
+              type="date"
+              className="w-full border rounded-lg px-3 py-2 text-sm bg-white"
+              value={confirmedDate}
+              onChange={(e) => setConfirmedDate(e.target.value)}
+            />
+          </div>
+        )}
 
         {selectedStatus === 'DELAYED' && (
           <div className="mt-4">

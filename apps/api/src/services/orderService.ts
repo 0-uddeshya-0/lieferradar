@@ -20,6 +20,7 @@ export async function createOrder(orgId: string, input: CreateOrderInput) {
       partDescription: input.partDescription,
       quantity: input.quantity,
       unit: input.unit,
+      valueCents: input.valueCents,
       dueDate: new Date(input.dueDate),
       events: {
         create: { status: 'PENDING', source: 'manager' },

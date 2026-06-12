@@ -67,6 +67,30 @@ describe('computeDelayRisk', () => {
     ).toBe('gelb');
   });
 
+  it('returns rot when the confirmed date is later than the due date (AB-Abgleich)', () => {
+    expect(
+      computeDelayRisk({
+        ...base,
+        status: 'IN_PROGRESS',
+        dueDate: new Date('2026-12-01'),
+        confirmedDate: new Date('2026-12-15'),
+        lastSupplierUpdate: new Date(),
+      })
+    ).toBe('rot');
+  });
+
+  it('returns gruen when the confirmed date meets the due date', () => {
+    expect(
+      computeDelayRisk({
+        ...base,
+        status: 'IN_PROGRESS',
+        dueDate: new Date('2026-12-31'),
+        confirmedDate: new Date('2026-12-30'),
+        lastSupplierUpdate: new Date(),
+      })
+    ).toBe('gruen');
+  });
+
   it('returns gruen when far from due with update', () => {
     expect(
       computeDelayRisk({
