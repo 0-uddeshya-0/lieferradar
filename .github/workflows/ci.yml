@@ -25,6 +25,11 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+      mailhog:
+        image: mailhog/mailhog:v1.0.1
+        ports:
+          - 1025:1025
+
     env:
       DATABASE_URL: postgresql://lieferradar:password@localhost:5432/lieferradar
       JWT_SECRET: ci-jwt-secret-minimum-32-characters-long
